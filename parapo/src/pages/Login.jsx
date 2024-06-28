@@ -2,9 +2,15 @@ import React from 'react'
 
 const Login = () => {
   return (
-    <div class="text-blue-500">
-      login page
+    <div>
+      <div className='text-red-500 font-futura'>
+        the quick brown fox jumps over the lazy dog
+      </div>
+      <div className='text-red-500 font-roboto'>
+      the quick brown fox jumps over the lazy dog
+      </div>
     </div>
+    
   )
 }
 
