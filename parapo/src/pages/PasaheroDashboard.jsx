@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   Button,
-  Modal,
   TextField,
   Table,
   TableBody,
@@ -11,8 +10,6 @@ import {
   TableRow,
   Paper,
   Box,
-  Grid,
-  Typography,
   IconButton,
   Drawer,
   List,
@@ -25,20 +22,17 @@ import { useNavigate } from "react-router-dom";
 import { Close as CloseIcon } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
-import backgroundImage from "../rsc/PasaheroDashImage.png";
+import backgroundImage from "../rsc/Pasaherobgimage.png";
+import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDown";
+import NearMeIcon from '@mui/icons-material/NearMe';
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import PaymentIcon from '@mui/icons-material/Payment';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 const PasaheroDashboard = () => {
   const navigate = useNavigate();
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [openBookRideModal, setOpenBookRideModal] = useState(false);
-  const [openUpdateModal, setOpenUpdateModal] = useState(false);
-  const [rideTime, setRideTime] = useState("");
-  const [destination, setDestination] = useState("");
-  const [price, setPrice] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [rideHistory, setRideHistory] = useState([
     {
       id: 1,
@@ -59,42 +53,6 @@ const PasaheroDashboard = () => {
     // Add more ride history data as needed
   ]);
 
-  const handleOpenBookRideModal = () => {
-    setOpenBookRideModal(true);
-  };
-
-  const handleCloseBookRideModal = () => {
-    setOpenBookRideModal(false);
-  };
-
-  const handleBookRide = () => {
-    // Handle booking logic here (e.g., API call, etc.)
-    // Placeholder: Show "Searching for a rider to accept" message
-    console.log(
-      `Booking ride: Time - ${rideTime}, Destination - ${destination}, Price - ${price}`
-    );
-    // Placeholder: Close modal
-    handleCloseBookRideModal();
-  };
-
-  const handleOpenUpdateModal = () => {
-    setOpenUpdateModal(true);
-  };
-
-  const handleCloseUpdateModal = () => {
-    setOpenUpdateModal(false);
-  };
-
-  const handleUpdateCredentials = () => {
-    // Handle update credentials logic here (e.g., API call, etc.)
-    // Placeholder: Update credentials
-    console.log(
-      `Updating credentials: Username - ${username}, Password - ${password}, First Name - ${firstName}, Last Name - ${lastName}`
-    );
-    // Placeholder: Close modal
-    handleCloseUpdateModal();
-  };
-
   const toggleDrawer = (open) => (event) => {
     if (
       event.type === "keydown" &&
@@ -113,7 +71,7 @@ const PasaheroDashboard = () => {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        <ListItem button onClick={handleOpenUpdateModal}>
+        <ListItem button onClick={() => navigate("/UpdateAccount")}>
           <ListItemText primary="Update Profile" />
         </ListItem>
       </List>
@@ -131,10 +89,10 @@ const PasaheroDashboard = () => {
 
   return (
     <div className="w-screen">
-      <div className="bg-customBlue fixed top-0 w-full h-[7rem] flex items-center text-customWhite">
+      <div className="bg-customBlue top-0 w-full h-[7rem] flex items-center text-customWhite">
         <div className="p-8 justify-start">
           <h1 className="text-roboto text-2xl font-bold flex">
-           Welcome! Care to Book a Ride?
+            Welcome *User*! Care to Book a Ride?
           </h1>
         </div>
         <div className="p-8 absolute right-0 items-center">
@@ -152,166 +110,146 @@ const PasaheroDashboard = () => {
           backgroundPosition: "center",
         }}
       >
-  
-        <div className="h-[20rem] mt-[30rem] flex flex-col justify-end">
-        <div className="bg-customLightBlue h-[5rem] flex items-center w-screen p-8">
-            <h1 className="text-roboto text-2xl font-bold">
-              Download The App
-            </h1>
-          </div>
-          <div className="bg-customYellow h-[5rem] flex items-center w-screen p-8">
-            <h1 className="text-roboto text-2xl font-bold">
-              About Us
-            </h1>
+        <div className=" h-full w-full flex flex-row justify-center">
+          <div className="h-[50rem] flex items-center">
+            <Box
+              sx={{
+                height: "35rem",
+                width: "30rem",
+                bgcolor: "rgba(255, 255, 255, 0.5)",
+                p: 4,
+                borderRadius: 2,
+                boxShadow: 3,
+                mt: "1.5rem",
+                mr: ".5rem",  
+              }}
+            >
+              <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
+                Request a Ride
+              </h1>
+              <p className="text-left mt-[1 rem] text-xl mb-[2rem]">
+                Request a ride, hop in, and Go!
+              </p>
+
+              <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+                <ExpandCircleDownIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <TextField
+                  fullWidth
+                  label="Location"
+                  variant="filled"
+                  placeholder="Where you at?"
+                  className="mb-4 mt-[10rem]"
+                  sx={{
+                    backgroundColor: "white",
+                    borderRadius: 1,
+                  }}
+                />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <UnfoldMoreIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+                <NearMeIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <TextField
+                  fullWidth
+                  label="Destination"
+                  variant="filled"
+                  className="mb-4 mt-[10rem]"
+                  placeholder="Where you goin?"
+                  sx={{
+                    backgroundColor: "white",
+                    borderRadius: 1,
+                  }}
+                />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <PaymentIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+                <AttachMoneyIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <TextField
+                  fullWidth
+                  label="Amount"
+                  variant="filled"
+                  className="mb-4 mt-[10rem]"
+                  placeholder="eg. 200.00"
+                  sx={{
+                    backgroundColor: "white",
+                    borderRadius: 1,
+                  }}
+                />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: "1.2rem" }}>
+              <button variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl">Request!</button>
+              </Box>
+            </Box>
+            
+
+            <Box
+              sx={{
+                height: "35rem",
+                width: "30rem",
+                bgcolor: "rgba(255, 255, 255, 0.5)",
+                p: 4,
+                borderRadius: 2,
+                boxShadow: 3,
+                mt: "1.5rem",
+                ml: ".5rem"
+              }}
+              className="blur-sm"
+            >
+              <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
+                Payment
+              </h1>
+              <p className="text-left mt-[.5rem] text-xl mb-[5.5rem]">
+                Pay cashless!
+              </p>
+
+              <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+                <AccountBalanceIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <TextField
+                  fullWidth
+                  label="Account No"
+                  variant="filled"
+                  className="mb-4 mt-[10rem]"
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  sx={{
+                    backgroundColor: "white",
+                    borderRadius: 1,
+                  }}
+                />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <UnfoldMoreIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+                <AttachMoneyIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <TextField
+                  fullWidth
+                  label="Total"
+                  variant="filled"
+                  className="mb-4 mt-[10rem]"
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  sx={{
+                    backgroundColor: "white",
+                    borderRadius: 1,
+                  }}
+                />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: "1.2rem" }}>
+              <button variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl mt-[3.4rem]">Pay now!</button>
+              </Box>
+            </Box>
           </div>
         </div>
       </div>
-
       <div className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Pasahero Dashboard</h1>
-        {/* Book a Ride Modal */}
-        <Modal
-          open={openBookRideModal}
-          onClose={handleCloseBookRideModal}
-          aria-labelledby="book-ride-modal"
-          aria-describedby="book-ride-description"
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              height: 350,
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-            }}
-          >
-            <Grid container justifyContent="space-between" alignItems="center">
-              <Typography variant="h5" component="h2" sx={{ flexGrow: 1 }}>
-                Book a Ride
-              </Typography>
-              <IconButton onClick={handleCloseBookRideModal}>
-                <CloseIcon />
-              </IconButton>
-            </Grid>
-            <TextField
-              fullWidth
-              label="Time"
-              variant="outlined"
-              className="mb-4 mt-4"
-              value={rideTime}
-              onChange={(e) => setRideTime(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Destination"
-              variant="outlined"
-              className="mb-4"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Price"
-              variant="outlined"
-              className="mb-4"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              onClick={handleBookRide}
-            >
-              OK
-            </Button>
-          </Box>
-        </Modal>
-
-        {/*Update credentials modal*/}
-        <Modal
-          open={openUpdateModal}
-          onClose={handleCloseUpdateModal}
-          aria-labelledby="update-credentials-modal"
-          aria-describedby="update-credentials-description"
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-            }}
-          >
-            <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
-              Update Credentials
-            </Typography>
-            <TextField
-              fullWidth
-              label="Username"
-              variant="outlined"
-              className="mb-4"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              type="password"
-              label="Password"
-              variant="outlined"
-              className="mb-4"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="First Name"
-              variant="outlined"
-              className="mb-4"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Last Name"
-              variant="outlined"
-              className="mb-4"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-            <Grid container justifyContent="flex-end">
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleUpdateCredentials}
-              >
-                Update
-              </Button>
-            </Grid>
-          </Box>
-        </Modal>
 
         {/* Sections */}
-        <div className="mb-8">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleOpenBookRideModal}
-          >
-            Book a Ride
-          </Button>
-          {/* Placeholder for "Searching for a rider to accept" */}
-        </div>
 
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-4">Ride History</h3>

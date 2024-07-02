@@ -5,6 +5,7 @@ import AccountingDashboard from './pages/AccountingDashboard';
 import PasaheroDashboard from './pages/PasaheroDashboard';
 import RiderDashboard from './pages/RiderDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import UpdateAccount from './pages/UpdateAccount';
 
 const Routes = createBrowserRouter([
     { path: '/pineda', element: <Login/>},
@@ -14,6 +15,7 @@ const Routes = createBrowserRouter([
     { path: '/Pasahero', element: <PasaheroDashboard/>},
     { path: '/Rider', element: <RiderDashboard/>},
     { path: '/Admin', element: <AdminDashboard/>},
+    { path: '/UpdateAccount', element: <UpdateAccount/>},
 ])
 
 export default Routes
