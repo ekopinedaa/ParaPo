@@ -61,7 +61,7 @@ const UpdateAccount = () => {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        <ListItem button onClick={() => navigate("/Pasahero")}>
+        <ListItem button onClick={() => navigate(-1)}>
           <ListItemText primary="Go Back" />
         </ListItem>
       </List>

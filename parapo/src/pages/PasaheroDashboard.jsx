@@ -201,17 +201,18 @@ const PasaheroDashboard = () => {
               <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
                 Payment
               </h1>
-              <p className="text-left mt-[.5rem] text-xl mb-[5.5rem]">
-                Pay cashless!
+              <p className="text-left mt-[.5rem] text-xl mb-[2rem]">
+                Your Rider is {"ridername"} using {"vehicle"}
               </p>
-
+              <p className="text-left mt-[.5rem] text-xl mb-[.5rem]">
+                Your Account No is:
+              </p>
               <Box sx={{ display: "flex", alignItems: "flex-end" }}>
                 <AccountBalanceIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
                 <TextField
                   fullWidth
-                  label="Account No"
+                  value={"00000008"}
                   variant="filled"
-                  className="mb-4 mt-[10rem]"
                   InputProps={{
                     readOnly: true,
                   }}
@@ -224,13 +225,15 @@ const PasaheroDashboard = () => {
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
               <UnfoldMoreIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
               </Box>
+              <p className="text-left text-xl mb-[.5rem]">
+                Your Total is:
+              </p>
               <Box sx={{ display: "flex", alignItems: "flex-end" }}>
                 <AttachMoneyIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
                 <TextField
                   fullWidth
-                  label="Total"
                   variant="filled"
-                  className="mb-4 mt-[10rem]"
+                  value={"220"}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -241,16 +244,14 @@ const PasaheroDashboard = () => {
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: "1.2rem" }}>
-              <button variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl mt-[3.4rem]">Pay now!</button>
+              <button variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl mt-[2.5rem]">Pay now!</button>
               </Box>
             </Box>
           </div>
         </div>
       </div>
+
       <div className="p-8">
-
-        {/* Sections */}
-
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-4">Ride History</h3>
           <Paper elevation={3}>

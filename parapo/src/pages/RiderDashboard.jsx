@@ -59,10 +59,6 @@ const RiderDashboard = () => {
     // Add more ride history data as needed
   ]);
 
-  const handleOpenBookRideModal = () => {
-    setOpenBookRideModal(true);
-  };
-
   const handleCloseBookRideModal = () => {
     setOpenBookRideModal(false);
   };
@@ -85,15 +81,6 @@ const RiderDashboard = () => {
     setOpenUpdateModal(false);
   };
 
-  const handleUpdateCredentials = () => {
-    // Handle update credentials logic here (e.g., API call, etc.)
-    // Placeholder: Update credentials
-    console.log(
-      `Updating credentials: Username - ${username}, Password - ${password}, First Name - ${firstName}, Last Name - ${lastName}`
-    );
-    // Placeholder: Close modal
-    handleCloseUpdateModal();
-  };
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -113,7 +100,7 @@ const RiderDashboard = () => {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        <ListItem button onClick={handleOpenUpdateModal}>
+        <ListItem button onClick={() => navigate("/UpdateAccount")}>
           <ListItemText primary="Update Profile" />
         </ListItem>
       </List>
@@ -230,86 +217,6 @@ const RiderDashboard = () => {
             </Button>
           </Box>
         </Modal>
-
-        {/*Update credentials modal*/}
-        <Modal
-          open={openUpdateModal}
-          onClose={handleCloseUpdateModal}
-          aria-labelledby="update-credentials-modal"
-          aria-describedby="update-credentials-description"
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-            }}
-          >
-            <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
-              Update Credentials
-            </Typography>
-            <TextField
-              fullWidth
-              label="Username"
-              variant="outlined"
-              className="mb-4"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              type="password"
-              label="Password"
-              variant="outlined"
-              className="mb-4"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="First Name"
-              variant="outlined"
-              className="mb-4"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Last Name"
-              variant="outlined"
-              className="mb-4"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-            <Grid container justifyContent="flex-end">
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleUpdateCredentials}
-              >
-                Update
-              </Button>
-            </Grid>
-          </Box>
-        </Modal>
-
-        {/* Sections */}
-        <div className="mb-8">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleOpenBookRideModal}
-          >
-            Book a Ride
-          </Button>
-          {/* Placeholder for "Searching for a rider to accept" */}
-        </div>
 
         {/* Ride History" */}
         <div className="mb-8">
