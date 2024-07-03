@@ -20,25 +20,165 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  TablePagination,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Close as CloseIcon } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
-import backgroundImage from "../rsc/RideDashImage.png";
-const RiderDashboard = () => {
+import backgroundImage from "../rsc/riderdashbgimage.png";
 
+const RiderDashboard = () => {
   const navigate = useNavigate();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openBookRideModal, setOpenBookRideModal] = useState(false);
-  const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [rideTime, setRideTime] = useState("");
   const [destination, setDestination] = useState("");
   const [price, setPrice] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+
+  const rows = [
+    {
+      id: 1,
+      name: "John Doe",
+      location: "Downtown",
+      destination: "Airport",
+      price: "$20",
+    },
+    {
+      id: 2,
+      name: "Jane Smith",
+      location: "Uptown",
+      destination: "Mall",
+      price: "$15",
+    },
+    {
+      id: 3,
+      name: "Alice Johnson",
+      location: "Suburb",
+      destination: "Library",
+      price: "$12",
+    },
+    {
+      id: 4,
+      name: "Robert Brown",
+      location: "City Center",
+      destination: "Hotel",
+      price: "$18",
+    },
+    {
+      id: 5,
+      name: "Emily Davis",
+      location: "Park",
+      destination: "Museum",
+      price: "$10",
+    },
+    {
+      id: 6,
+      name: "Michael Wilson",
+      location: "Beachside",
+      destination: "Restaurant",
+      price: "$25",
+    },
+    {
+      id: 7,
+      name: "Sarah Taylor",
+      location: "Countryside",
+      destination: "Hospital",
+      price: "$30",
+    },
+    {
+      id: 8,
+      name: "David Moore",
+      location: "Industrial Area",
+      destination: "Office",
+      price: "$22",
+    },
+    {
+      id: 9,
+      name: "Laura Miller",
+      location: "Downtown",
+      destination: "University",
+      price: "$17",
+    },
+    {
+      id: 10,
+      name: "James Anderson",
+      location: "Suburb",
+      destination: "Stadium",
+      price: "$19",
+    },
+    {
+      id: 11,
+      name: "Megan Thomas",
+      location: "City Center",
+      destination: "Gym",
+      price: "$14",
+    },
+    {
+      id: 12,
+      name: "Christopher Jackson",
+      location: "Park",
+      destination: "Cinema",
+      price: "$16",
+    },
+    {
+      id: 13,
+      name: "Amanda White",
+      location: "Beachside",
+      destination: "Shopping Center",
+      price: "$23",
+    },
+    {
+      id: 14,
+      name: "Joshua Harris",
+      location: "Countryside",
+      destination: "Train Station",
+      price: "$28",
+    },
+    {
+      id: 15,
+      name: "Jessica Martin",
+      location: "Industrial Area",
+      destination: "Bus Stop",
+      price: "$11",
+    },
+    {
+      id: 16,
+      name: "Brian Lee",
+      location: "Downtown",
+      destination: "Bank",
+      price: "$24",
+    },
+    {
+      id: 17,
+      name: "Angela Walker",
+      location: "Suburb",
+      destination: "Post Office",
+      price: "$13",
+    },
+    {
+      id: 18,
+      name: "Ryan King",
+      location: "City Center",
+      destination: "Coffee Shop",
+      price: "$9",
+    },
+    {
+      id: 19,
+      name: "Elizabeth Wright",
+      location: "Park",
+      destination: "Zoo",
+      price: "$21",
+    },
+    {
+      id: 20,
+      name: "Kevin Hall",
+      location: "Beachside",
+      destination: "Hotel",
+      price: "$27",
+    },
+  ];
+
   const [rideHistory, setRideHistory] = useState([
     {
       id: 1,
@@ -58,6 +198,18 @@ const RiderDashboard = () => {
     },
     // Add more ride history data as needed
   ]);
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleCloseBookRideModal = () => {
     setOpenBookRideModal(false);
@@ -80,7 +232,6 @@ const RiderDashboard = () => {
   const handleCloseUpdateModal = () => {
     setOpenUpdateModal(false);
   };
-
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -115,12 +266,13 @@ const RiderDashboard = () => {
       </List>
     </Box>
   );
+
   return (
-<div className="w-screen">
-      <div className="bg-customBlue fixed top-0 w-full h-[7rem] flex items-center text-customWhite">
+    <div className="w-screen">
+      <div className="bg-customBlue top-0 w-full h-[7rem] flex items-center text-customWhite">
         <div className="p-8 justify-start">
           <h1 className="text-roboto text-2xl font-bold flex">
-           Welcome Rider! Ready to Start your day?
+            Welcome Rider! Ready to Start your day?
           </h1>
         </div>
         <div className="p-8 absolute right-0 items-center">
@@ -138,87 +290,108 @@ const RiderDashboard = () => {
           backgroundPosition: "center",
         }}
       >
-  
-        <div className="h-[20rem] mt-[30rem] flex flex-col justify-end">
-        <div className="bg-customLightBlue h-[5rem] flex items-center w-screen p-8">
-            <h1 className="text-roboto text-2xl font-bold">
-              Check Pending Rides
-            </h1>
-          </div>
-          <div className="bg-customYellow h-[5rem] flex items-center w-screen p-8">
-            <h1 className="text-roboto text-2xl font-bold">
-              Ride History
-            </h1>
+        <div className="h-full w-full flex flex-row justify-center">
+          <div className="h-[50rem] flex items-center">
+            <Box
+              sx={{
+                height: "45rem",
+                width: "115rem",
+                bgcolor: "rgba(255, 255, 255, 0.5)",
+                p: 4,
+                borderRadius: 2,
+                boxShadow: 3,
+                mt: "1.5rem",
+                mr: ".5rem",
+              }}
+            >
+              <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
+                Accept a ride
+              </h1>
+              <p className="text-left mt-[1 rem] text-xl mb-[2rem]">
+                Accept a ride from a customer!
+              </p>
+
+              {/* Table */}
+              <TableContainer
+                component={Paper}
+                sx={{ bgcolor: "White", boxShadow: "none" }}
+              >
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell
+                        sx={{ fontSize: "1.3rem", fontWeight: "bold", width: "22rem"}}
+                      >
+                        Name
+                      </TableCell>
+                      <TableCell
+                        sx={{ fontSize: "1.3rem", fontWeight: "bold", width: "22rem" }}
+                      >
+                        Location
+                      </TableCell>
+                      <TableCell
+                        sx={{ fontSize: "1.3rem", fontWeight: "bold", width: "22rem" }}
+                      >
+                        Destination
+                      </TableCell>
+                      <TableCell
+                        sx={{ fontSize: "1.3rem", fontWeight: "bold", width: "22rem" }}
+                      >
+                        Price
+                      </TableCell>
+                      <TableCell
+                        sx={{ fontSize: "1.3rem", fontWeight: "bold", width: "22rem" }}
+                      >
+                        Action
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {rows
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell sx={{ fontSize: "1.2rem", width: "22rem" }}>
+                            {row.name}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: "1.2rem", width: "22rem" }}>
+                            {row.location}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: "1.2rem", width: "22rem" }}>
+                            {row.destination}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: "1.2rem", width: "22rem" }}>
+                            {row.price}
+                          </TableCell>
+                          <TableCell>
+                            <button
+                              variant="contained"
+                              className="bg-customBlue text-white text-[1.2rem] h-[2.5rem] w-[5rem]"
+                            >
+                              Accept
+                            </button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 15]}
+                  component="div"
+                  count={rows.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </TableContainer>
+            </Box>
           </div>
         </div>
       </div>
 
       <div className="p-8">
-        {/* Book a Ride Modal */}
-        <Modal
-          open={openBookRideModal}
-          onClose={handleCloseBookRideModal}
-          aria-labelledby="book-ride-modal"
-          aria-describedby="book-ride-description"
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              height: 350,
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-            }}
-          >
-            <Grid container justifyContent="space-between" alignItems="center">
-              <Typography variant="h5" component="h2" sx={{ flexGrow: 1 }}>
-                Book a Ride
-              </Typography>
-              <IconButton onClick={handleCloseBookRideModal}>
-                <CloseIcon />
-              </IconButton>
-            </Grid>
-            <TextField
-              fullWidth
-              label="Time"
-              variant="outlined"
-              className="mb-4 mt-4"
-              value={rideTime}
-              onChange={(e) => setRideTime(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Destination"
-              variant="outlined"
-              className="mb-4"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Price"
-              variant="outlined"
-              className="mb-4"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              onClick={handleBookRide}
-            >
-              OK
-            </Button>
-          </Box>
-        </Modal>
-
-        {/* Ride History" */}
+        {/* Ride History */}
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-4">Ride History</h3>
           <Paper elevation={3}>
@@ -255,7 +428,7 @@ const RiderDashboard = () => {
         {drawerContent}
       </Drawer>
     </div>
-  )
-}
+  );
+};
 
-export default RiderDashboard
+export default RiderDashboard;
