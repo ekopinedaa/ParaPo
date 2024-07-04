@@ -196,7 +196,7 @@ const PasaheroDashboard = () => {
                 mt: "1.5rem",
                 ml: ".5rem"
               }}
-              className="blur-sm"
+              className=""
             >
               <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
                 Payment
