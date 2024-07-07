@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -8,12 +8,9 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../components/AdminSidebar";
 
-const AdminDashboard = () => {
-
-  // Sample user data (replace with actual data from API or state)
+const ViewUsers = () => {
   const users = [
     {
       userId: 1,
@@ -41,8 +38,8 @@ const AdminDashboard = () => {
   return (
     <div className="flex">
       <AdminSidebar />
-      <div className= "items-center justify-center w-[105rem] p-8">
-        <h2 className="text-2xl font-bold mb-4 w-[20rem]">Admin Dashboard</h2>
+      <div className="items-center justify-center w-[105rem] p-8">
+        <h2 className="text-2xl font-bold mb-4 w-[20rem]">Users</h2>
         <Paper elevation={3}>
           <TableContainer>
             <Table>
@@ -80,4 +77,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default ViewUsers;

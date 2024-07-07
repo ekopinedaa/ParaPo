@@ -31,10 +31,11 @@ import backgroundImage from "../rsc/riderdashbgimage.png";
 const RiderDashboard = () => {
   const navigate = useNavigate();
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [openBookRideModal, setOpenBookRideModal] = useState(false);
   const [rideTime, setRideTime] = useState("");
   const [destination, setDestination] = useState("");
   const [price, setPrice] = useState("");
+
+  
 
   const rows = [
     {
