@@ -78,7 +78,7 @@ const UpdateAccount = () => {
   );
 
   return (
-    <div className="w-screen">
+    <div className="w-screen h-screen">
       <div className="bg-customBlue top-0 w-full h-[7rem] flex items-center text-customWhite">
         <div className="p-8 justify-start">
           <h1 className="text-roboto text-2xl font-bold flex">

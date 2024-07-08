@@ -92,14 +92,14 @@ const Signup = () => {
                             />
                         )}
 
-                        <Button
+                        <button
                             fullWidth
                             variant="contained"
                             color="primary"
-                            className="mt-4"
+                            className={`w-full h-[2.5rem] p-[.5rem] rounded-md flex items-center gap-[.5rem] duration-300 ease hover:bg-customBlue hover:text-customWhite mt-4 bg-customLightBlue text-customWhite hover:border-customBlue justify-center`}
                         >
                             Signup
-                        </Button>
+                        </button>
                         <p className="mt-2 text-start">
                             Already have an <Link to="/">account?</Link>
                         </p>

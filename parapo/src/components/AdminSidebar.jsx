@@ -22,20 +22,30 @@ const LinksTop = [
 ];
 
 const LinksBottom = [
-  { id: 1, icon: <AlignHorizontalLeftIcon/>, name: "Audit Logs"},
-  { id: 2, icon: <LogoutIcon />, name: "Logout" },
+  { id: 1, linkto: "/ViewAuditLogs", icon: <AlignHorizontalLeftIcon/>, name: "Audit Logs"},
+  { id: 2, linkto: "/", icon: <LogoutIcon />, name: "Logout" },
 ];
 
+
+
 const AdminSidebar = () => {
+  const navigate = useNavigate();
+
+  const handleAdminClick = () => {
+    navigate('/admin');
+  };
+
   return (
     <>
       <div className="sidebar w-[17.5%] h-screen border-r border-black p-[1rem] flex flex-col justify-between items-start gap-[1rem]">
         <div className="overflow-auto w-full flex flex-col justify-center items-start gap-[.5rem]">
+          <h1 className="text-2xl ml-[1rem] font-bold" onClick={handleAdminClick}>Admin</h1>
+
           {LinksTop.map((item) => (
             <NavLink
               key={item.id}
               to={item.linkto}
-              className={`w-full p-[.5rem] rounded-lg flex items-center gap-[.5rem] duration-300 ease`}
+              className={`w-full p-[.5rem] rounded-lg flex items-center gap-[.5rem] duration-300 ease hover:bg-customYellow hover:text-customLightBlue`}
             >
               {item.icon}
               {item.name}
@@ -47,7 +57,8 @@ const AdminSidebar = () => {
             <div className="flex w-full">
               <NavLink
                 key={item.id}
-                className={`w-full p-[.5rem] rounded-lg flex items-center gap-[.5rem] hover:bg-[#EFEFEF] duration-300 ease`}
+                to={item.linkto}
+                className={`w-full p-[.5rem] rounded-lg flex items-center gap-[.5rem] duration-300 ease hover:bg-customYellow hover:text-customLightBlue`}
               >
                 {item.icon}
                 {item.name}
