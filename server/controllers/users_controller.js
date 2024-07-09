@@ -62,6 +62,28 @@ const UserController = {
         } catch (err) {
             res.status(500).json({ message: err.message });
         }
+    },
+
+    login: async (req, res) => {
+        try {
+            const { username, password } = req.body;
+    
+            if (!username || !password) {
+                return res.status(400).json({ success: false, message: 'All fields are required' });
+            }
+    
+            const user = await Users.findOne({ username, password });
+    
+            if (!user) {
+                return res.status(401).json({ success: false, message: 'Invalid username or password' });
+            }
+    
+            console.log("Login successful");
+            res.status(200).json({ success: true, userData: user }); // Send back user data
+        } catch (error) {
+            console.error('Error logging in:', error.message);
+            res.status(500).send('Server Error');
+        }
     }
 };
 

@@ -3,27 +3,49 @@ import { Button, TextField, Box } from '@mui/material';
 import backgroundImage from '../rsc/finallandingpage.png';
 import { Link, Navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setusername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Perform login logic here (e.g., API call, validation)
 
-    // Temporary login logic based on email and password
-    if (email === 'rider' && password === 'rider') {
-      navigate('/Rider');
-    } else if (email === 'pasahero' && password === 'pasahero') {
-      navigate('/Pasahero');
-    } else if (email === 'admin' && password === 'admin') {
-      navigate('/Admin');
-    } else if (email === 'accounting' && password === 'accounting') {
-      navigate('/Accounting');
-    } else {
+    try {
+      const response = await axios.post('http://192.168.10.37:3004/api/login', {
+        username,
+        password
+      });
+
+      // Assuming the response.data contains user information including usertype
+      const { data } = response; // Destructure the response to get data object
+      const { userData } = data; // Destructure userData from data
+
+      // Store user data in local storage
+      Object.keys(userData).forEach(key => {
+        localStorage.setItem(key, userData[key]);
+      });
+
+      // Extract usertype from userData
+      const { usertype } = userData;
+
+      // Navigate based on usertype
+      if (usertype === 'rider') {
+        navigate('/rider');
+      } else if (usertype === 'pasahero') {
+        navigate('/pasahero');
+      } else if (usertype === 'admin') {
+        navigate('/admin');
+      } else if (usertype === 'accounting') {
+        navigate('/accounting');
+      } else {
+        alert('Invalid usertype returned from server.');
+      }
+    } catch (error) {
+      console.error('Error logging in:', error.message);
       alert('Invalid credentials. Please try again.');
     }
   };
@@ -45,10 +67,10 @@ const Login = () => {
             <div className="mb-4">
               <TextField
                 fullWidth
-                label="Email"
+                label="username"
                 variant="outlined"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setusername(e.target.value)}
               />
             </div>
             <div className="mb-4">
