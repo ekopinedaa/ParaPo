@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const connectDb = require('../config/db');
+const UserRouter = require('../routes/user_routes');
 
 const app = express();
 
@@ -13,9 +14,9 @@ app.use(cors({
 }));
 
 //routes
+app.use('/api', UserRouter);
 
 
-//routes
 
 const startServer = async () => {
     await connectDb(); // Wait for the database connection to be established

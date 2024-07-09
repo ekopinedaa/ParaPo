@@ -24,13 +24,15 @@ const UserSchema = new mongoose.Schema({
     },
     contactno: {
         type: String,
+    },
+    accountno: {
+        type: String,
         required: true
     },
     usertype: {
         type: String,
         required: true
     },
-
     vehicletype: {
         type: String,
     }
