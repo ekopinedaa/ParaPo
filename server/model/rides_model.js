@@ -7,11 +7,13 @@ const RidesSchema = new mongoose.Schema({
         unique: true // Ensure rideid is unique
     },
     bookerid: {
-        type: String,
+        type:mongoose.Schema.Types.ObjectId,
+        ref: 'users',
         required: true
     },
     riderid: {
-        type: String,
+        type:mongoose.Schema.Types.ObjectId,
+        ref: 'users',
         required: true
     },
     origin: {
