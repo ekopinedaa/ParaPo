@@ -20,6 +20,7 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
+import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { Close as CloseIcon, LocalSeeTwoTone } from "@mui/icons-material";
@@ -46,6 +47,7 @@ const PasaheroDashboard = () => {
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Success Snackbar message
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false); // State for Error Snackbar
   const [errorSnackbarMessage, setErrorSnackbarMessage] = useState(""); // Error Snackbar message
+  const [rideRequests, setRideRequests] = useState([]); 
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -54,7 +56,32 @@ const PasaheroDashboard = () => {
     setUsername(storedUsername);
     setAccountno(storedAccountno);
     setUserid(storedUserId)
+
+    fetchRideRequests();
   }, []);
+
+  const fetchRideRequests = async () => {
+    try {
+      const response = await axios.get("http://192.168.10.37:3004/api/GetRideRequest");
+      console.log(response) // Replace with your actual endpoint
+
+      const rideRequestsArray = response.data;
+
+      // Map response data to match the expected structure
+      const mappedRequests = rideRequestsArray.map((request, index) => ({
+        id: index + 1,
+        location: request.origin, // Adjust field names as needed
+        destination: request.destination,
+        time: request.time,
+        total: request.rideprice,
+        confirmation: request.rideconfirmation
+      }));
+  
+      setRideRequests(mappedRequests);
+    } catch (error) {
+      console.error("Error fetching ride requests:", error.message);
+    }
+  };
 
   const [rideHistory, setRideHistory] = useState([
     {
@@ -75,6 +102,29 @@ const PasaheroDashboard = () => {
     },
     // Add more ride history data as needed
   ]);
+
+
+  const columns = [
+    { field: 'id', headerName: 'ID', width: 90 },
+    { field: 'location', headerName: 'Location', width: 150 },
+    { field: 'destination', headerName: 'Destination', width: 150 },
+    { field: 'time', headerName: 'Time', width: 150 },
+    { field: 'total', headerName: 'Total', width: 150 },
+    { field: 'confirmation', headerName: 'Confirmation', width: 150 },
+  ];
+  
+  const rows = [
+    { id: 1, location: 'Snow', destination: 'Jon', time: "now", total: 200, confirmation: "pending"},
+    { id: 2, location: 'Lannister', destination: 'Cersei', time: "now", total: 200, confirmation: "pending"},
+    { id: 3, location: 'Lannister', destination: 'Jaime', time: "now", total: 200, confirmation: "pending"},
+    { id: 4, location: 'Stark', destination: 'Arya', time: "now", total: 200, confirmation: "pending"},
+    { id: 5, location: 'Targaryen', destination: 'Daenerys', time: "now", total: 200, confirmation: "pending"},
+    { id: 6, location: 'Melisandre', destination: "jan", time: "now", total: 200, confirmation: "pending"},
+    { id: 7, location: 'Clifford', destination: 'Ferrara', time: "now", total: 200, confirmation: "pending"},
+    { id: 8, location: 'Frances', destination: 'Rossini', time: "now", total: 200, confirmation: "pending"},
+    { id: 9, location: 'Roxie', destination: 'Harvey', time: "now", total: 200, confirmation: "pending"},
+  ];
+
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -167,12 +217,12 @@ const PasaheroDashboard = () => {
       </div>
 
       <div
-        className="flex items-center bg-[#FF0CE] w-screen font-roboto"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+      // className="flex items-center bg-[#FF0CE] w-screen font-roboto"
+      // style={{
+      //   backgroundImage: `url(${backgroundImage})`,
+      //   backgroundSize: "cover",
+      //   backgroundPosition: "center",
+      // }}
       >
         <div className=" h-full w-full flex flex-row justify-center">
           <div className="h-[50rem] flex items-center">
@@ -258,7 +308,7 @@ const PasaheroDashboard = () => {
             <Box
               sx={{
                 height: "35rem",
-                width: "30rem",
+                width: "80rem",
                 bgcolor: "rgba(255, 255, 255, 0.5)",
                 p: 4,
                 borderRadius: 2,
@@ -268,54 +318,27 @@ const PasaheroDashboard = () => {
               }}
               className=""
             >
-              <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
-                Payment
-              </h1>
-              <p className="text-left mt-[.5rem] text-xl mb-[2rem]">
-                Your Rider is {"ridername"} using {"vehicle"}
+              <div className="flex flex-column align-center">
+                <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
+                  Requests
+                </h1>
+                <h1 className="text-left font-bold text-3xl text-Black ml-[3rem] mt-[.4rem]">Your Acc Number is: {accountno}</h1>
+              </div>
+              <p className="text-left mt-[.5rem] text-xl">
+                Your Ride Requests are listed here
               </p>
-              <p className="text-left mt-[.5rem] text-xl mb-[.5rem]">
-                Your Account No is:
-              </p>
-              <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-                <AccountBalanceIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
-                <TextField
-                  fullWidth
-                  value={accountno}
-                  variant="filled"
-                  InputProps={{
-                    readOnly: true,
+              <div className="h-[23.2rem] w-full mt-[1rem]">
+                <DataGrid
+                  rows={rideRequests}
+                  columns={columns}
+                  initialState={{
+                    pagination: {
+                      paginationModel: { page: 0, pageSize: 5 },
+                    },
                   }}
-                  sx={{
-                    backgroundColor: "white",
-                    borderRadius: 1,
-                  }}
+                  pageSizeOptions={[5, 10]}
                 />
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <UnfoldMoreIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
-              </Box>
-              <p className="text-left text-xl mb-[.5rem]">
-                Your Total is:
-              </p>
-              <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-                <AttachMoneyIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
-                <TextField
-                  fullWidth
-                  variant="filled"
-                  value={"220"}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  sx={{
-                    backgroundColor: "white",
-                    borderRadius: 1,
-                  }}
-                />
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: "1.2rem" }}>
-                <button variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl mt-[2.5rem]">Pay now!</button>
-              </Box>
+              </div>
             </Box>
           </div>
         </div>

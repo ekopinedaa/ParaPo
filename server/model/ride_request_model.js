@@ -32,5 +32,5 @@ const RideRequestSchema = new mongoose.Schema({
 // Apply the auto-increment plugin to RideRequestSchema
 RideRequestSchema.plugin(AutoIncrement, { inc_field: 'ridereqid' })
 
-const RideRequestModel = mongoose.model('ride_request', RideRequestSchema)
+const RideRequestModel = mongoose.model('ride_requests', RideRequestSchema)
 module.exports = RideRequestModel
