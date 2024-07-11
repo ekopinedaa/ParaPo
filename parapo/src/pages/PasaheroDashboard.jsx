@@ -9,6 +9,8 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Snackbar,
+  Alert,
   Box,
   IconButton,
   Drawer,
@@ -37,10 +39,13 @@ const PasaheroDashboard = () => {
   const [userid, setUserid] = useState();
   const [username, setUsername] = useState();
   const [accountno, setAccountno] = useState();
-  const [location, setLocation] = useState(""); // Add this line
-  const [destination, setDestination] = useState(""); // Add this line
-  const [amount, setAmount] = useState(""); // Add this line
-
+  const [location, setLocation] = useState("");
+  const [destination, setDestination] = useState("");
+  const [amount, setAmount] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Success Snackbar
+  const [snackbarMessage, setSnackbarMessage] = useState(""); // Success Snackbar message
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false); // State for Error Snackbar
+  const [errorSnackbarMessage, setErrorSnackbarMessage] = useState(""); // Error Snackbar message
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -49,7 +54,7 @@ const PasaheroDashboard = () => {
     setUsername(storedUsername);
     setAccountno(storedAccountno);
     setUserid(storedUserId)
-  })
+  }, []);
 
   const [rideHistory, setRideHistory] = useState([
     {
@@ -106,6 +111,13 @@ const PasaheroDashboard = () => {
   );
 
   const handleRequestRide = async () => {
+    // Check if any of the required fields are empty
+    if (!location || !destination || !amount) {
+      setErrorSnackbarMessage("Please fill out all fields before requesting a ride.");
+      setErrorSnackbarOpen(true);
+      return;
+    }
+
     try {
       const response = await axios.post("http://192.168.10.37:3004/api/AddRideRequest", {
         bookerid: userid, // Replace with actual booker ID
@@ -119,9 +131,24 @@ const PasaheroDashboard = () => {
 
       // Update ride history state with new ride
       setRideHistory([...rideHistory, response.data.data]);
+
+      setSnackbarMessage("Your request has been made. Please wait for a rider to confirm.");
+      setSnackbarOpen(true);
+
+      setLocation("");
+      setDestination("");
+      setAmount("");
     } catch (error) {
       console.error("Error creating ride request:", error.message);
     }
+  };
+
+  const closeSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
+  const closeErrorSnackbar = () => {
+    setErrorSnackbarOpen(false);
   };
 
   return (
@@ -158,7 +185,7 @@ const PasaheroDashboard = () => {
                 borderRadius: 2,
                 boxShadow: 3,
                 mt: "1.5rem",
-                mr: ".5rem",  
+                mr: ".5rem",
               }}
             >
               <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
@@ -169,14 +196,14 @@ const PasaheroDashboard = () => {
               </p>
 
               <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-                <ExpandCircleDownIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <ExpandCircleDownIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
                 <TextField
                   fullWidth
                   label="Location"
                   variant="filled"
                   placeholder="Where you at?"
                   className="mb-4 mt-[10rem]"
-                  value = {location}
+                  value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   sx={{
                     backgroundColor: "white",
@@ -185,17 +212,17 @@ const PasaheroDashboard = () => {
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <UnfoldMoreIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <UnfoldMoreIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
               </Box>
               <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-                <NearMeIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <NearMeIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
                 <TextField
                   fullWidth
                   label="Destination"
                   variant="filled"
                   className="mb-4 mt-[10rem]"
                   placeholder="Where you goin?"
-                  value = {destination}
+                  value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                   sx={{
                     backgroundColor: "white",
@@ -204,17 +231,17 @@ const PasaheroDashboard = () => {
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <PaymentIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <PaymentIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
               </Box>
               <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-                <AttachMoneyIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <AttachMoneyIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
                 <TextField
                   fullWidth
                   label="Amount"
                   variant="filled"
                   className="mb-4 mt-[10rem]"
                   placeholder="eg. 200.00"
-                  value = {amount}
+                  value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   sx={{
                     backgroundColor: "white",
@@ -223,10 +250,10 @@ const PasaheroDashboard = () => {
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: "1.2rem" }}>
-              <button onClick={handleRequestRide} variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl" >Request!</button>
+                <button onClick={handleRequestRide} variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl" >Request!</button>
               </Box>
             </Box>
-            
+
 
             <Box
               sx={{
@@ -251,7 +278,7 @@ const PasaheroDashboard = () => {
                 Your Account No is:
               </p>
               <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-                <AccountBalanceIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <AccountBalanceIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
                 <TextField
                   fullWidth
                   value={accountno}
@@ -266,13 +293,13 @@ const PasaheroDashboard = () => {
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <UnfoldMoreIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <UnfoldMoreIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
               </Box>
               <p className="text-left text-xl mb-[.5rem]">
                 Your Total is:
               </p>
               <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-                <AttachMoneyIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
+                <AttachMoneyIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
                 <TextField
                   fullWidth
                   variant="filled"
@@ -287,14 +314,14 @@ const PasaheroDashboard = () => {
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: "1.2rem" }}>
-              <button variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl mt-[2.5rem]">Pay now!</button>
+                <button variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl mt-[2.5rem]">Pay now!</button>
               </Box>
             </Box>
           </div>
         </div>
       </div>
 
-      {/* <div className="p-8">
+      <div className="p-8">
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-4">Ride History</h3>
           <Paper elevation={3}>
@@ -324,7 +351,41 @@ const PasaheroDashboard = () => {
             </TableContainer>
           </Paper>
         </div>
-      </div> */}
+      </div>
+
+      {/* Success Snackbar */}
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={closeSnackbar}
+      >
+        <Alert
+          onClose={closeSnackbar}
+          severity="success"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
+      {/* Error Snackbar */}
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={errorSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={closeErrorSnackbar}
+      >
+        <Alert
+          onClose={closeErrorSnackbar}
+          severity="error"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {errorSnackbarMessage}
+        </Alert>
+      </Snackbar>
 
       {/* Drawer */}
       <Drawer anchor="right" open={openDrawer} onClose={toggleDrawer(false)}>

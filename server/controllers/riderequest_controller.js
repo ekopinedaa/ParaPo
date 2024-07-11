@@ -27,6 +27,7 @@ const RideRequestController = {
           // Save the ride request to the database
           const savedRideRequest = await newRideRequest.save();
           res.status(201).json({ success: true, data: savedRideRequest });
+          console.log("Ride Request successful")
         } catch (error) {
           console.error('Error creating ride request:', error.message);
           res.status(500).send('Server Error');
