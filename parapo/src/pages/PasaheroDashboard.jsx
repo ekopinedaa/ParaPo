@@ -120,13 +120,13 @@ const PasaheroDashboard = () => {
   ]);
 
   const columns = [
-    { field: "ridereqid", headerName: "ID", width: 90 },
-    { field: "bookerid", headerName: "User ID", width: 90},
+    { field: "id", headerName: "", width: 70 },
+    { field: "bookerid", headerName: "User ID", width: 80},
     { field: "riderid", headerName: "Rider ID", width: 90},
     { field: "origin", headerName: "Location", width: 150 },
     { field: "destination", headerName: "Destination", width: 150 },
     { field: "time", headerName: "Time", width: 150 },
-    { field: "rideprice", headerName: "Total", width: 150 },
+    { field: "rideprice", headerName: "Total", width: 100 },
     { field: "confirmation", headerName: "Confirmation", width: 150 },
     {
       field: "actions",
