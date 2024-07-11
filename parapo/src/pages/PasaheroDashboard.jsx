@@ -20,19 +20,19 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
-import { DataGrid } from '@mui/x-data-grid';
-import axios from 'axios';
+import { DataGrid } from "@mui/x-data-grid";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Close as CloseIcon, LocalSeeTwoTone } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import backgroundImage from "../rsc/Pasaherobgimage.png";
 import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDown";
-import NearMeIcon from '@mui/icons-material/NearMe';
-import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
-import PaymentIcon from '@mui/icons-material/Payment';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import NearMeIcon from "@mui/icons-material/NearMe";
+import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
+import PaymentIcon from "@mui/icons-material/Payment";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 
 const PasaheroDashboard = () => {
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ const PasaheroDashboard = () => {
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Success Snackbar message
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false); // State for Error Snackbar
   const [errorSnackbarMessage, setErrorSnackbarMessage] = useState(""); // Error Snackbar message
-  const [rideRequests, setRideRequests] = useState([]); 
+  const [rideRequests, setRideRequests] = useState([]);
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -55,31 +55,47 @@ const PasaheroDashboard = () => {
     const storedUserId = localStorage.getItem("userid");
     setUsername(storedUsername);
     setAccountno(storedAccountno);
-    setUserid(storedUserId)
+    setUserid(storedUserId);
 
     fetchRideRequests();
   }, []);
 
   const fetchRideRequests = async () => {
     try {
-      const response = await axios.get("http://192.168.10.37:3004/api/GetRideRequest");
-      console.log(response) // Replace with your actual endpoint
-
-      const rideRequestsArray = response.data;
-
-      // Map response data to match the expected structure
-      const mappedRequests = rideRequestsArray.map((request, index) => ({
-        id: index + 1,
-        location: request.origin, // Adjust field names as needed
+      const response = await axios.get("http://localhost:3004/api/GetRideRequest");
+      console.log("API Response:", response.data);
+  
+      let requestsData = response.data;
+  
+      // Check if the data is not an array
+      if (!Array.isArray(requestsData)) {
+        // If it's an object with a data property that's an array, use that
+        if (requestsData.data && Array.isArray(requestsData.data)) {
+          requestsData = requestsData.data;
+        } else {
+          // If it's neither an array nor an object with a data array, log an error and set an empty array
+          console.error("Unexpected data format:", requestsData);
+          setRideRequests([]);
+          return;
+        }
+      }
+  
+      // Map the data to ensure it matches the DataGrid requirements
+      const formattedRequests = requestsData.map(request => ({
+        id: request.ridereqid, // DataGrid requires a unique 'id' field
+        riderid: request.riderid,
+        bookerid: request.bookerid,
+        origin: request.origin,
         destination: request.destination,
         time: request.time,
-        total: request.rideprice,
-        confirmation: request.rideconfirmation
+        rideprice: request.rideprice,
+        confirmation: request.rideconfirmation // Note: changed from 'rideconfirmation' to match your columns
       }));
   
-      setRideRequests(mappedRequests);
+      setRideRequests(formattedRequests);
     } catch (error) {
-      console.error("Error fetching ride requests:", error.message);
+      console.error("Error fetching ride requests:", error);
+      setRideRequests([]);
     }
   };
 
@@ -103,28 +119,31 @@ const PasaheroDashboard = () => {
     // Add more ride history data as needed
   ]);
 
-
   const columns = [
-    { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'location', headerName: 'Location', width: 150 },
-    { field: 'destination', headerName: 'Destination', width: 150 },
-    { field: 'time', headerName: 'Time', width: 150 },
-    { field: 'total', headerName: 'Total', width: 150 },
-    { field: 'confirmation', headerName: 'Confirmation', width: 150 },
+    { field: "ridereqid", headerName: "ID", width: 90 },
+    { field: "bookerid", headerName: "User ID", width: 90},
+    { field: "riderid", headerName: "Rider ID", width: 90},
+    { field: "origin", headerName: "Location", width: 150 },
+    { field: "destination", headerName: "Destination", width: 150 },
+    { field: "time", headerName: "Time", width: 150 },
+    { field: "rideprice", headerName: "Total", width: 150 },
+    { field: "confirmation", headerName: "Confirmation", width: 150 },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 120,
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handlePayRide(params.row)}
+          disabled={params.row.confirmation !== "accepted"}
+        >
+          Pay
+        </Button>
+      ),
+    },
   ];
-  
-  const rows = [
-    { id: 1, location: 'Snow', destination: 'Jon', time: "now", total: 200, confirmation: "pending"},
-    { id: 2, location: 'Lannister', destination: 'Cersei', time: "now", total: 200, confirmation: "pending"},
-    { id: 3, location: 'Lannister', destination: 'Jaime', time: "now", total: 200, confirmation: "pending"},
-    { id: 4, location: 'Stark', destination: 'Arya', time: "now", total: 200, confirmation: "pending"},
-    { id: 5, location: 'Targaryen', destination: 'Daenerys', time: "now", total: 200, confirmation: "pending"},
-    { id: 6, location: 'Melisandre', destination: "jan", time: "now", total: 200, confirmation: "pending"},
-    { id: 7, location: 'Clifford', destination: 'Ferrara', time: "now", total: 200, confirmation: "pending"},
-    { id: 8, location: 'Frances', destination: 'Rossini', time: "now", total: 200, confirmation: "pending"},
-    { id: 9, location: 'Roxie', destination: 'Harvey', time: "now", total: 200, confirmation: "pending"},
-  ];
-
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -162,32 +181,40 @@ const PasaheroDashboard = () => {
 
   const handleRequestRide = async () => {
     // Check if any of the required fields are empty
-    if (!location || !destination || !amount) {
-      setErrorSnackbarMessage("Please fill out all fields before requesting a ride.");
+    if (!location || !destination ) {
+      setErrorSnackbarMessage(
+        "Please fill out all fields before requesting a ride."
+      );
       setErrorSnackbarOpen(true);
       return;
     }
 
     try {
-      const response = await axios.post("http://192.168.10.37:3004/api/AddRideRequest", {
-        bookerid: userid, // Replace with actual booker ID
-        riderid: 0,
-        origin: location,
-        destination: destination,
-        time: new Date().toLocaleTimeString(), // Add actual time
-        rideprice: amount,
-        rideconfirmation: "pending", // Default status
-      });
+      const response = await axios.post(
+        "http://localhost:3004/api/AddRideRequest",
+        {
+          bookerid: userid, // Replace with actual booker ID
+          riderid: 0,
+          origin: location,
+          destination: destination,
+          time: new Date().toLocaleTimeString(), // Add actual time
+          rideprice: "",
+          rideconfirmation: "pending", // Default status
+        }
+      );
 
       // Update ride history state with new ride
       setRideHistory([...rideHistory, response.data.data]);
 
-      setSnackbarMessage("Your request has been made. Please wait for a rider to confirm.");
+      setSnackbarMessage(
+        "Your request has been made. Please wait for a rider to confirm."
+      );
       setSnackbarOpen(true);
 
       setLocation("");
       setDestination("");
       setAmount("");
+      fetchRideRequests()
     } catch (error) {
       console.error("Error creating ride request:", error.message);
     }
@@ -246,7 +273,9 @@ const PasaheroDashboard = () => {
               </p>
 
               <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-                <ExpandCircleDownIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
+                <ExpandCircleDownIcon
+                  sx={{ color: "black", mr: 1, my: 0.5, fontSize: "2.9rem" }}
+                />
                 <TextField
                   fullWidth
                   label="Location"
@@ -261,11 +290,21 @@ const PasaheroDashboard = () => {
                   }}
                 />
               </Box>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <UnfoldMoreIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <UnfoldMoreIcon
+                  sx={{ color: "black", mr: 1, my: 0.5, fontSize: "2.9rem" }}
+                />
               </Box>
               <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-                <NearMeIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
+                <NearMeIcon
+                  sx={{ color: "black", mr: 1, my: 0.5, fontSize: "2.9rem" }}
+                />
                 <TextField
                   fullWidth
                   label="Destination"
@@ -280,30 +319,34 @@ const PasaheroDashboard = () => {
                   }}
                 />
               </Box>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <PaymentIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-                <AttachMoneyIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem' }} />
-                <TextField
-                  fullWidth
-                  label="Amount"
-                  variant="filled"
-                  className="mb-4 mt-[10rem]"
-                  placeholder="eg. 200.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  sx={{
-                    backgroundColor: "white",
-                    borderRadius: 1,
-                  }}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <PaymentIcon
+                  sx={{ color: "black", mr: 1, my: 0.5, fontSize: "2.9rem" }}
                 />
               </Box>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: "1.2rem" }}>
-                <button onClick={handleRequestRide} variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl" >Request!</button>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  mt: "1.2rem",
+                }}
+              >
+                <button
+                  onClick={handleRequestRide}
+                  variant="contained"
+                  className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl"
+                >
+                  Request!
+                </button>
               </Box>
             </Box>
-
 
             <Box
               sx={{
@@ -314,7 +357,7 @@ const PasaheroDashboard = () => {
                 borderRadius: 2,
                 boxShadow: 3,
                 mt: "1.5rem",
-                ml: ".5rem"
+                ml: ".5rem",
               }}
               className=""
             >
@@ -322,7 +365,9 @@ const PasaheroDashboard = () => {
                 <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
                   Requests
                 </h1>
-                <h1 className="text-left font-bold text-3xl text-Black ml-[3rem] mt-[.4rem]">Your Acc Number is: {accountno}</h1>
+                <h1 className="text-left font-bold text-3xl text-Black ml-[3rem] mt-[.4rem]">
+                  Your Acc Number is: {accountno}
+                </h1>
               </div>
               <p className="text-left mt-[.5rem] text-xl">
                 Your Ride Requests are listed here
@@ -378,7 +423,7 @@ const PasaheroDashboard = () => {
 
       {/* Success Snackbar */}
       <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={closeSnackbar}
@@ -387,7 +432,7 @@ const PasaheroDashboard = () => {
           onClose={closeSnackbar}
           severity="success"
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbarMessage}
         </Alert>
@@ -395,7 +440,7 @@ const PasaheroDashboard = () => {
 
       {/* Error Snackbar */}
       <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={errorSnackbarOpen}
         autoHideDuration={3000}
         onClose={closeErrorSnackbar}
@@ -404,7 +449,7 @@ const PasaheroDashboard = () => {
           onClose={closeErrorSnackbar}
           severity="error"
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {errorSnackbarMessage}
         </Alert>

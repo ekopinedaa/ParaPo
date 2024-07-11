@@ -6,7 +6,7 @@ const UserController = require('../controllers/users_controller');
 router.post('/createUser', UserController.createUser);
 router.get('/getAllUsers', UserController.getAllUsers);
 // router.get('/:userid', UserController.getUserById);
-router.put('/:userid', UserController.updateUser);
+router.put('/UpdateUser/:userid', UserController.updateUser);
 router.delete('/deleteUser/:userid', UserController.deleteUser);
 
  router.post('/login', UserController.login);

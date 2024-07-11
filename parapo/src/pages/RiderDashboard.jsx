@@ -22,6 +22,8 @@ import {
   Divider,
   TablePagination,
 } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Close as CloseIcon } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -35,11 +37,151 @@ const RiderDashboard = () => {
   const [destination, setDestination] = useState("");
   const [price, setPrice] = useState("");
   const [username, setUsername] = useState("");
-  
+  const [total, setTotal] = useState("");
+  const [rideRequests, setRideRequests] = useState([]);
+  const [extraCharge, setExtraCharge] = useState("");
+
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
+    const storedExtraCharge = localStorage.getItem("extraCharge");
     setUsername(storedUsername);
+    setExtraCharge(storedExtraCharge)
+
+    fetchRideRequests();
+    fetchExtraCharge();
   }, []);
+
+  const columns = [
+    { field: "ridereqid", headerName: "ID", width: 150 },
+    { field: "bookerid", headerName: "User ID", width: 230 },
+    { field: "origin", headerName: "Location", width: 230 },
+    { field: "destination", headerName: "Destination", width: 230 },
+    {
+      field: "rideprice",
+      headerName: "Total",
+      width: 230,
+      editable: true,
+      renderCell: (params) => (
+        <TextField
+          value={params.value}
+          onChange={(e) => handleTotalChange(params.id, e.target.value)}
+          variant="standard"
+          fullWidth
+        />
+      ),
+    },
+    { field: "confirmation", headerName: "Confirmation", width: 230 },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 230,
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleAcceptRide(params.row)}
+          disabled={params.row.confirmation !== "pending"}
+        >
+          Accept
+        </Button>
+      ),
+    },
+  ];
+
+  const handleTotalChange = (id, newValue) => {
+    setRideRequests((prevRequests) =>
+      prevRequests.map((request) =>
+        request.id === id ? { ...request, rideprice: newValue } : request
+      )
+    );
+    setPrice(newValue);
+  };
+
+  const handleAcceptRide = async (ride) => {
+    const XtraChargePrice = parseInt(localStorage.getItem("extraCharge"), 10);
+
+    const riderUserId = localStorage.getItem("userid");
+    const RideReqAcceptID = ride.ridereqid;
+    const SetPriceRide = parseInt(ride.rideprice, 10) + XtraChargePrice;
+
+    console.log(SetPriceRide);
+    console.log(RideReqAcceptID);
+
+    try {
+      await axios.put(
+        `http://localhost:3004/api/UpdateRideRequest/${RideReqAcceptID}`,
+        {
+          riderid: riderUserId,
+          rideconfirmation: "accepted",
+          rideprice: SetPriceRide,
+        }
+      );
+      // Refresh the ride requests after updating
+
+      fetchRideRequests();
+    } catch (error) {
+      console.error("Error accepting ride:", error);
+    }
+  };
+
+  const fetchExtraCharge = async () => {
+    try {
+      const response = await fetch("http://localhost:3004/api/getECID/1"); // Replace with your actual API endpoint
+      const result = await response.json();
+
+      if (result.success) {
+        const extraCharge = result.data.amount;
+        localStorage.setItem("extraCharge", extraCharge);
+        console.log("Extra charge stored in local storage:", extraCharge);
+      } else {
+        console.error("Failed to fetch extra charge:", result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching extra charge:", error);
+    }
+  };
+
+  const fetchRideRequests = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3004/api/GetRideRequest"
+      );
+      console.log("API Response:", response.data);
+
+      let requestsData = response.data;
+
+      // Check if the data is not an array
+      if (!Array.isArray(requestsData)) {
+        // If it's an object with a data property that's an array, use that
+        if (requestsData.data && Array.isArray(requestsData.data)) {
+          requestsData = requestsData.data;
+        } else {
+          // If it's neither an array nor an object with a data array, log an error and set an empty array
+          console.error("Unexpected data format:", requestsData);
+          setRideRequests([]);
+          return;
+        }
+      }
+
+      // Map the data to ensure it matches the DataGrid requirements
+      const formattedRequests = requestsData.map((request) => ({
+        id: request.ridereqid, // DataGrid requires a unique 'id' field
+        ridereqid: request.ridereqid,
+        bookerid: request.bookerid,
+        origin: request.origin,
+        destination: request.destination,
+        time: request.time,
+        rideprice: request.rideprice,
+        confirmation: request.rideconfirmation, // Note: changed from 'rideconfirmation' to match your columns
+        actions: request.ridereqid,
+      }));
+
+      setRideRequests(formattedRequests);
+    } catch (error) {
+      console.error("Error fetching ride requests:", error);
+      setRideRequests([]);
+    }
+  };
 
   const rows = [
     {
@@ -204,40 +346,6 @@ const RiderDashboard = () => {
     // Add more ride history data as needed
   ]);
 
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleCloseBookRideModal = () => {
-    setOpenBookRideModal(false);
-  };
-
-  const handleBookRide = () => {
-    // Handle booking logic here (e.g., API call, etc.)
-    // Placeholder: Show "Searching for a rider to accept" message
-    console.log(
-      `Booking ride: Time - ${rideTime}, Destination - ${destination}, Price - ${price}`
-    );
-    // Placeholder: Close modal
-    handleCloseBookRideModal();
-  };
-
-  const handleOpenUpdateModal = () => {
-    setOpenUpdateModal(true);
-  };
-
-  const handleCloseUpdateModal = () => {
-    setOpenUpdateModal(false);
-  };
-
   const toggleDrawer = (open) => (event) => {
     if (
       event.type === "keydown" &&
@@ -289,11 +397,11 @@ const RiderDashboard = () => {
 
       <div
         className="flex items-center bg-[#FF0CE] w-screen font-roboto"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        // style={{
+        //   backgroundImage: `url(${backgroundImage})`,
+        //   backgroundSize: "cover",
+        //   backgroundPosition: "center",
+        // }}
       >
         <div className="h-full w-full flex flex-row justify-center">
           <div className="h-[50rem] flex items-center">
@@ -309,87 +417,31 @@ const RiderDashboard = () => {
                 mr: ".5rem",
               }}
             >
-              <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
-                Accept a ride
-              </h1>
-              <p className="text-left mt-[1 rem] text-xl mb-[2rem]">
-                Accept a ride from a customer!
-              </p>
-
-              {/* Table */}
-              <TableContainer
-                component={Paper}
-                sx={{ bgcolor: "White", boxShadow: "none" }}
-              >
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell
-                        sx={{ fontSize: "1.3rem", fontWeight: "bold", width: "22rem"}}
-                      >
-                        Name
-                      </TableCell>
-                      <TableCell
-                        sx={{ fontSize: "1.3rem", fontWeight: "bold", width: "22rem" }}
-                      >
-                        Location
-                      </TableCell>
-                      <TableCell
-                        sx={{ fontSize: "1.3rem", fontWeight: "bold", width: "22rem" }}
-                      >
-                        Destination
-                      </TableCell>
-                      <TableCell
-                        sx={{ fontSize: "1.3rem", fontWeight: "bold", width: "22rem" }}
-                      >
-                        Price
-                      </TableCell>
-                      <TableCell
-                        sx={{ fontSize: "1.3rem", fontWeight: "bold", width: "22rem" }}
-                      >
-                        Action
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((row) => (
-                        <TableRow key={row.id}>
-                          <TableCell sx={{ fontSize: "1.2rem", width: "22rem" }}>
-                            {row.name}
-                          </TableCell>
-                          <TableCell sx={{ fontSize: "1.2rem", width: "22rem" }}>
-                            {row.location}
-                          </TableCell>
-                          <TableCell sx={{ fontSize: "1.2rem", width: "22rem" }}>
-                            {row.destination}
-                          </TableCell>
-                          <TableCell sx={{ fontSize: "1.2rem", width: "22rem" }}>
-                            {row.price}
-                          </TableCell>
-                          <TableCell>
-                            <button
-                              variant="contained"
-                              className="bg-customBlue text-white text-[1.2rem] h-[2.5rem] w-[5rem]"
-                            >
-                              Accept
-                            </button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 15]}
-                  component="div"
-                  count={rows.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
+              <div className="flex flex-column">
+                <div>
+                  <h1 className="text-left font-bold text-5xl mb-[.5rem] text-Black">
+                    Accept a ride
+                  </h1>
+                  <p className="text-left mt-[1 rem] text-xl mb-[2rem]">
+                    Accept a ride from a customer!
+                  </p>
+                </div>
+                <div className="ml-[20rem] text-2xl font-bold mt-[1.9rem]">
+                  The Extra Charge is: P{extraCharge}
+                </div>
+              </div>
+              <div className="h-[30rem] w-full">
+                <DataGrid
+                  rows={rideRequests}
+                  columns={columns}
+                  initialState={{
+                    pagination: {
+                      paginationModel: { page: 0, pageSize: 5 },
+                    },
+                  }}
+                  pageSizeOptions={[5, 10]}
                 />
-              </TableContainer>
+              </div>
             </Box>
           </div>
         </div>

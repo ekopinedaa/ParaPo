@@ -37,7 +37,6 @@ const RideRequestController = {
     getRideRequests: async (req, res) => {
         try {
             const rideRequests = await RideRequestModel.find();
-            console.log(rideRequests)
             res.status(200).json({ success: true, data: rideRequests });
         } catch (error) {
             console.error('Error fetching ride requests:', error.message);
@@ -79,31 +78,31 @@ const RideRequestController = {
 
     updateRideRequestById: async (req, res) => {
         try {
-            const { id } = req.params;
-            const {
-                bookerid,
-                riderid,
-                origin,
-                destination,
-                time,
-                rideprice,
-                rideconfirmation,
-            } = req.body;
-
-            const updatedRideRequest = await RideRequestModel.findByIdAndUpdate(
-                id,
-                { bookerid, riderid, origin, destination, time, rideprice, rideconfirmation },
+            const { ridereqid } = req.params;
+            console.log("Received ridereqid:", ridereqid, "Type:", typeof ridereqid);
+            const updateData = req.body;
+    
+            const parsedRidereqid = parseInt(ridereqid, 10);
+            console.log("Parsed ridereqid:", parsedRidereqid, "Type:", typeof parsedRidereqid);
+    
+            if (isNaN(parsedRidereqid)) {
+                return res.status(400).json({ success: false, message: 'Invalid ridereqid' });
+            }
+    
+            const updatedRideRequest = await RideRequestModel.findOneAndUpdate(
+                { ridereqid: parsedRidereqid },
+                { $set: updateData },
                 { new: true, runValidators: true }
             );
-
+    
             if (!updatedRideRequest) {
                 return res.status(404).json({ success: false, message: 'Ride request not found' });
             }
-
+    
             res.status(200).json({ success: true, data: updatedRideRequest });
         } catch (error) {
             console.error('Error updating ride request:', error.message);
-            res.status(500).send('Server Error');
+            res.status(500).json({ success: false, message: 'Server Error' });
         }
     },
 }

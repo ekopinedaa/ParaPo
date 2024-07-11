@@ -7,6 +7,6 @@ router.post('/AddRideRequest', RideRequestController.createRideRequest);
 router.get('/GetRideRequest', RideRequestController.getRideRequests);
 router.get('/GetRideRequest/:id', RideRequestController.getRideRequestById);
 router.delete('/DeleteRideRequest/:id', RideRequestController.deleteRideRequestById);
-router.put('/UpdateRideRequest/:id', RideRequestController.updateRideRequestById);
+router.put('/UpdateRideRequest/:ridereqid', RideRequestController.updateRideRequestById);
 
 module.exports = router;

@@ -32,7 +32,7 @@ const Signup = () => {
     const handleSignup = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://192.168.10.37:3004/api/createUser', formData);
+            await axios.post('http://localhost:3004/api/createUser', formData);
             navigate('/')
             console.log('User created successfully');
         } catch (error) {
