@@ -84,7 +84,9 @@ const UserController = {
             console.error('Error logging in:', error.message);
             res.status(500).send('Server Error');
         }
-    }
+    },
+
+    
 };
 
 module.exports = UserController;

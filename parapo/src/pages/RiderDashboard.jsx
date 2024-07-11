@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Modal,
@@ -34,8 +34,12 @@ const RiderDashboard = () => {
   const [rideTime, setRideTime] = useState("");
   const [destination, setDestination] = useState("");
   const [price, setPrice] = useState("");
-
+  const [username, setUsername] = useState("");
   
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    setUsername(storedUsername);
+  }, []);
 
   const rows = [
     {
@@ -273,7 +277,7 @@ const RiderDashboard = () => {
       <div className="bg-customBlue top-0 w-full h-[7rem] flex items-center text-customWhite">
         <div className="p-8 justify-start">
           <h1 className="text-roboto text-2xl font-bold flex">
-            Welcome Rider! Ready to Start your day?
+            Welcome {username}! Ready to Start your day?
           </h1>
         </div>
         <div className="p-8 absolute right-0 items-center">

@@ -7,8 +7,7 @@ const TransactionsSchema = new mongoose.Schema({
         unique: true // Ensure transactionsid is unique
     },
     userid: {
-        type:mongoose.Schema.Types.ObjectId,
-        ref: 'users',
+        type: Number,
         required: true
     },
     accountno: {

@@ -7,13 +7,12 @@ const AuditLogSchema = new mongoose.Schema({
         unique: true
     },
     userid: {
-        type:mongoose.Schema.Types.ObjectId,
-        ref: 'users',
+        type: Number,
         required: true
     },
     username: {
-        type:mongoose.Schema.Types.ObjectId,
-        ref: 'username',
+        type: String,
+        required: true
     },
     userrole: {
         type: String

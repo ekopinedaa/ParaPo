@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   TextField,
@@ -18,8 +18,9 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
+import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import { Close as CloseIcon } from "@mui/icons-material";
+import { Close as CloseIcon, LocalSeeTwoTone } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import backgroundImage from "../rsc/Pasaherobgimage.png";
@@ -33,6 +34,23 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 const PasaheroDashboard = () => {
   const navigate = useNavigate();
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [userid, setUserid] = useState();
+  const [username, setUsername] = useState();
+  const [accountno, setAccountno] = useState();
+  const [location, setLocation] = useState(""); // Add this line
+  const [destination, setDestination] = useState(""); // Add this line
+  const [amount, setAmount] = useState(""); // Add this line
+
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    const storedAccountno = localStorage.getItem("accountno");
+    const storedUserId = localStorage.getItem("userid");
+    setUsername(storedUsername);
+    setAccountno(storedAccountno);
+    setUserid(storedUserId)
+  })
+
   const [rideHistory, setRideHistory] = useState([
     {
       id: 1,
@@ -87,12 +105,31 @@ const PasaheroDashboard = () => {
     </Box>
   );
 
+  const handleRequestRide = async () => {
+    try {
+      const response = await axios.post("http://192.168.10.37:3004/api/AddRideRequest", {
+        bookerid: userid, // Replace with actual booker ID
+        riderid: 0,
+        origin: location,
+        destination: destination,
+        time: new Date().toLocaleTimeString(), // Add actual time
+        rideprice: amount,
+        rideconfirmation: "pending", // Default status
+      });
+
+      // Update ride history state with new ride
+      setRideHistory([...rideHistory, response.data.data]);
+    } catch (error) {
+      console.error("Error creating ride request:", error.message);
+    }
+  };
+
   return (
     <div className="w-screen">
       <div className="bg-customBlue top-0 w-full h-[7rem] flex items-center text-customWhite">
         <div className="p-8 justify-start">
           <h1 className="text-roboto text-2xl font-bold flex">
-            Welcome *User*! Care to Book a Ride?
+            Welcome {username}! Care to Book a Ride?
           </h1>
         </div>
         <div className="p-8 absolute right-0 items-center">
@@ -139,6 +176,8 @@ const PasaheroDashboard = () => {
                   variant="filled"
                   placeholder="Where you at?"
                   className="mb-4 mt-[10rem]"
+                  value = {location}
+                  onChange={(e) => setLocation(e.target.value)}
                   sx={{
                     backgroundColor: "white",
                     borderRadius: 1,
@@ -156,6 +195,8 @@ const PasaheroDashboard = () => {
                   variant="filled"
                   className="mb-4 mt-[10rem]"
                   placeholder="Where you goin?"
+                  value = {destination}
+                  onChange={(e) => setDestination(e.target.value)}
                   sx={{
                     backgroundColor: "white",
                     borderRadius: 1,
@@ -173,6 +214,8 @@ const PasaheroDashboard = () => {
                   variant="filled"
                   className="mb-4 mt-[10rem]"
                   placeholder="eg. 200.00"
+                  value = {amount}
+                  onChange={(e) => setAmount(e.target.value)}
                   sx={{
                     backgroundColor: "white",
                     borderRadius: 1,
@@ -180,7 +223,7 @@ const PasaheroDashboard = () => {
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: "1.2rem" }}>
-              <button variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl">Request!</button>
+              <button onClick={handleRequestRide} variant="contained" className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl" >Request!</button>
               </Box>
             </Box>
             
@@ -211,7 +254,7 @@ const PasaheroDashboard = () => {
                 <AccountBalanceIcon sx={{ color: 'black', mr: 1, my: 0.5, fontSize: '2.9rem'}}/>
                 <TextField
                   fullWidth
-                  value={"00000008"}
+                  value={accountno}
                   variant="filled"
                   InputProps={{
                     readOnly: true,
@@ -251,7 +294,7 @@ const PasaheroDashboard = () => {
         </div>
       </div>
 
-      <div className="p-8">
+      {/* <div className="p-8">
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-4">Ride History</h3>
           <Paper elevation={3}>
@@ -281,7 +324,7 @@ const PasaheroDashboard = () => {
             </TableContainer>
           </Paper>
         </div>
-      </div>
+      </div> */}
 
       {/* Drawer */}
       <Drawer anchor="right" open={openDrawer} onClose={toggleDrawer(false)}>
