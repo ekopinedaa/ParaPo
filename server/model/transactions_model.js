@@ -6,20 +6,24 @@ const TransactionsSchema = new mongoose.Schema({
         type: Number, // Change type to Number for auto-increment
         unique: true // Ensure transactionsid is unique
     },
-    userid: {
+    fromid: {
         type: Number,
         required: true
     },
-    accountno: {
+    toid: {
+        type: Number,
+        required: true
+    },
+    fromaccno: {
+        type: String,
+        required: true
+    },
+    toaccno: {
         type: String,
         required: true
     },
     amount: {
         type: Number,
-        required: true
-    },
-    transactiontype: {
-        type: String,
         required: true
     }
 })

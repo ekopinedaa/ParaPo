@@ -6,7 +6,7 @@ dotenv.config();
 
 
 const PORT = process.env.PORT || 3004;
-const HOST = '192.168.10.37';
+//const HOST = '192.168.10.37';
 //const HOST = '192.168.1.20';
 
 app.use(express.json());
