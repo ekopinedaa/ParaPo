@@ -18,6 +18,7 @@ import AccountingSidebar from '../components/AccountingSidebar';
 import SearchIcon from '@mui/icons-material/Search';
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 import axios from 'axios'; // Import Axios
+import { SERVER_IP } from '../../config';
 
 const AccountingDashboard = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -38,7 +39,7 @@ const AccountingDashboard = () => {
   const handleModalClose = async () => {
     try {
       const response = await axios.put(
-        "http://localhost:3004/api/updateExtraCharge/1",
+        `http://${SERVER_IP}:3004/api/updateExtraCharge/1`,
         { ECID: 1, amount: newAmount }
       );
 
@@ -58,7 +59,7 @@ const AccountingDashboard = () => {
   
   const fetchExtraCharge = async () => {
     try {
-      const response = await fetch("http://localhost:3004/api/getECID/1");
+      const response = await fetch(`http://${SERVER_IP}:3004/api/getECID/1`);
       const result = await response.json();
 
       if (result.success) {

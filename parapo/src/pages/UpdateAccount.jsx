@@ -22,6 +22,7 @@ import backgroundImage from "../rsc/Pasaherobgimage.png";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
+import { SERVER_IP } from '../../config';
 
 const UpdateAccount = () => {
   const navigate = useNavigate();

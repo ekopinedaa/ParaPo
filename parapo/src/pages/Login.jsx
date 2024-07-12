@@ -4,6 +4,7 @@ import backgroundImage from '../rsc/finallandingpage.png';
 import { Link, Navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { SERVER_IP } from '../../config';
 
 const Login = () => {
   const [username, setusername] = useState('');
@@ -13,12 +14,13 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await axios.post('http://localhost:3004/api/login', {
+      const response = await axios.post(`http://${SERVER_IP}:3004/api/login`, {
         username,
         password
       });
+
+      
 
       // Assuming the response.data contains user information including usertype
       const { data } = response; // Destructure the response to get data object

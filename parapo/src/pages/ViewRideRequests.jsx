@@ -10,6 +10,7 @@ import {
   Button,
 } from "@mui/material";
 import AdminSidebar from "../components/AdminSidebar";
+import { SERVER_IP } from '../../config';
 
 const ViewRideRequests = () => {
   const usersData = [

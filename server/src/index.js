@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const app = require('./app');
+const dotenv = require('dotenv')
+dotenv.config();
 
 
 const PORT = process.env.PORT || 3004;
@@ -14,6 +16,6 @@ app.use(cors());
 //     console.log(`Listening: http://${HOST}:${PORT}`)
 // });
 
-app.listen(3004, 'localhost', () => {
-    console.log(`Listening: http://${HOST}:${PORT}`)
+app.listen(3004, process.env.SERVER_IP, () => {
+    console.log(`Listening: http://${process.env.SERVER_IP}:3004`)
 });

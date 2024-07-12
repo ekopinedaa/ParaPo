@@ -29,6 +29,7 @@ import { Close as CloseIcon } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import backgroundImage from "../rsc/riderdashbgimage.png";
+import { SERVER_IP } from '../../config';
 
 const RiderDashboard = () => {
   const navigate = useNavigate();
@@ -107,7 +108,7 @@ const RiderDashboard = () => {
 
     try {
       await axios.put(
-        `http://localhost:3004/api/UpdateRideRequest/${RideReqAcceptID}`,
+        `http://${SERVER_IP}:3004/api/UpdateRideRequest/${RideReqAcceptID}`,
         {
           riderid: riderUserId,
           rideconfirmation: "accepted",
@@ -124,7 +125,7 @@ const RiderDashboard = () => {
 
   const fetchExtraCharge = async () => {
     try {
-      const response = await fetch("http://localhost:3004/api/getECID/1"); // Replace with your actual API endpoint
+      const response = await fetch(`http://${SERVER_IP}:3004/api/getECID/1`); // Replace with your actual API endpoint
       const result = await response.json();
 
       if (result.success) {
@@ -142,7 +143,7 @@ const RiderDashboard = () => {
   const fetchRideRequests = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3004/api/GetRideRequest"
+        `http://${SERVER_IP}:3004/api/GetRideRequest`
       );
       console.log("API Response:", response.data);
 

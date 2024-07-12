@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import AdminSidebar from "../components/AdminSidebar";
 import SearchIcon from '@mui/icons-material/Search';
+import { SERVER_IP } from '../../config';
 
 const ViewRides = () => {
   const usersData = [

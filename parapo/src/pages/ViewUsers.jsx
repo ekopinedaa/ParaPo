@@ -13,6 +13,7 @@ import {
 import AdminSidebar from "../components/AdminSidebar";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
+import { SERVER_IP } from '../../config';
 
 const ViewUsers = () => {
   const usersData = [

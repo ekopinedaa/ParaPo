@@ -17,6 +17,7 @@ import {
 import AdminSidebar from "../components/AdminSidebar";
 import SearchIcon from '@mui/icons-material/Search';
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
+import { SERVER_IP } from '../../config';
 
 
 const VIewTransactions = () => {

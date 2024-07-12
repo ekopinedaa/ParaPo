@@ -33,6 +33,7 @@ import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import PaymentIcon from "@mui/icons-material/Payment";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import { SERVER_IP } from '../../config';
 
 const PasaheroDashboard = () => {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ const PasaheroDashboard = () => {
 
   const fetchRideRequests = async () => {
     try {
-      const response = await axios.get("http://localhost:3004/api/GetRideRequest");
+      const response = await axios.get(`http://${SERVER_IP}:3004/api/GetRideRequest`);
       console.log("API Response:", response.data);
   
       let requestsData = response.data;
@@ -101,7 +102,7 @@ const PasaheroDashboard = () => {
 
   const fetchAndStoreAccountNo = async (riderId) => {
     try {
-      const response = await axios.get(`http://localhost:3004/api/getUserById/${riderId}`);
+      const response = await axios.get(`http://${SERVER_IP}:3004/api/getUserById/${riderId}`);
       const accountNumber = response.data.accountno;
 
       // Store account number in local storage
@@ -203,7 +204,7 @@ const PasaheroDashboard = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3004/api/AddRideRequest",
+        `http://${SERVER_IP}:3004/api/AddRideRequest`,
         {
           bookerid: userid, // Replace with actual booker ID
           riderid: 0,
@@ -234,7 +235,7 @@ const PasaheroDashboard = () => {
 
   const handlePayRide = async (ride) => {
     try {
-      const response = await axios.get(`http://localhost:3004/api/getUserById/${ride.riderid}`);
+      const response = await axios.get(`http://${SERVER_IP}:3004/api/getUserById/${ride.riderid}`);
       const riderAccountNo = response.data.accountno;
 
       localStorage.setItem("rider accountno", riderAccountNo);

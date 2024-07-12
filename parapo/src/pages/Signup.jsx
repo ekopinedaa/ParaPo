@@ -3,6 +3,7 @@ import { Button, TextField, Box, FormControl, InputLabel, Select, MenuItem } fro
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'; // Import axios or your preferred HTTP client
 import backgroundImage from '../rsc/finallandingpage.png'
+import { SERVER_IP } from '../../config';
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -32,7 +33,7 @@ const Signup = () => {
     const handleSignup = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:3004/api/createUser', formData);
+            await axios.post(`http://${SERVER_IP}:3004/api/createUser`, formData);
             navigate('/')
             console.log('User created successfully');
         } catch (error) {

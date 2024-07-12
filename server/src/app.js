@@ -4,6 +4,8 @@ const connectDb = require('../config/db');
 const UserRouter = require('../routes/user_routes');
 const TransactionRouter = require('../routes/transaction_routes');
 const RideRequestRouter = require('../routes/riderequest_routes');
+const dotenv = require('dotenv')
+dotenv.config()
 
 const app = express();
 
