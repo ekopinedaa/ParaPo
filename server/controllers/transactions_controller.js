@@ -5,6 +5,9 @@ const TransactionsController = {
     updateExtraCharge: async (req, res) => {
         const { ECID, amount } = req.body;
 
+        console.log('Received request to update extra charge with ECID:', ECID);
+        console.log('New amount:', amount);
+
         try {
             const updatedExtraCharge = await ExtraCharge.findOneAndUpdate(
               { ECID },

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -17,17 +17,62 @@ import {
 import AccountingSidebar from '../components/AccountingSidebar';
 import SearchIcon from '@mui/icons-material/Search';
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
+import axios from 'axios'; // Import Axios
 
 const AccountingDashboard = () => {
   const [openModal, setOpenModal] = useState(false);
+  const [newAmount, setNewAmount] = useState('');
+  const [extraCharge, setExtraCharge] = useState("");
+  const [XtraChargeStorage, setXtraChargeStorage] = useState("")
+
+  useEffect(() => {
+    fetchExtraCharge();
+    const storedExtraCharge = localStorage.getItem("extraCharge");
+    setXtraChargeStorage(storedExtraCharge)
+  },[]);
 
   const handleModalOpen = () => {
     setOpenModal(true);
   };
 
-  const handleModalClose = () => {
-    setOpenModal(false);
+  const handleModalClose = async () => {
+    try {
+      const response = await axios.put(
+        "http://localhost:3004/api/updateExtraCharge/1",
+        { ECID: 1, amount: newAmount }
+      );
+
+      if (response.data.success) {
+        console.log("Extra charge updated successfully:", response.data.data);
+        localStorage.setItem("extraCharge", newAmount);
+        setXtraChargeStorage(newAmount);
+      } else {
+        console.error("Failed to update extra charge:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating extra charge:", error);
+    } finally {
+      setOpenModal(false);
+    }
   };
+  
+  const fetchExtraCharge = async () => {
+    try {
+      const response = await fetch("http://localhost:3004/api/getECID/1");
+      const result = await response.json();
+
+      if (result.success) {
+        const extraCharge = result.data.amount;
+        localStorage.setItem("extraCharge", extraCharge);
+        console.log("Extra charge stored in local storage:", extraCharge);
+      } else {
+        console.error("Failed to fetch extra charge:", result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching extra charge:", error);
+    }
+  };
+
 
   const users = [
     {
@@ -55,7 +100,7 @@ const AccountingDashboard = () => {
       <div className="items-center justify-center w-[105rem] p-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">TRANSACTIONS</h2>
-          <h2 className="text-2xl font-bold ml-[20rem]">Amount for charges: P20</h2>
+          <h2 className="text-2xl font-bold ml-[20rem]">Amount for charges: P{XtraChargeStorage}</h2>
           <button
               onClick={handleModalOpen}
               className={`w-[5rem] h-[2.35rem] p-[.5rem] ml-8 rounded-md flex items-center gap-[.5rem] duration-300 ease hover:bg-customYellow hover:text-customLightBlue border-black justify-center`}
@@ -71,7 +116,6 @@ const AccountingDashboard = () => {
             <SearchIcon
               sx={{ fontSize: 45, marginLeft: '.5rem', marginTop: '.25rem' }}
             />
-
           </div>
         </div>
         <Paper elevation={3}>
@@ -104,7 +148,7 @@ const AccountingDashboard = () => {
             </Table>
           </TableContainer>
         </Paper>
-        <Dialog open={openModal} onClose={handleModalClose}>
+        <Dialog open={openModal} onClose={() => setOpenModal(false)}>
           <DialogTitle>Edit Charges</DialogTitle>
           <DialogContent>
             <TextField
@@ -113,6 +157,8 @@ const AccountingDashboard = () => {
               label="New Amount"
               variant="outlined"
               fullWidth
+              value={newAmount}  // Link value to the newAmount state
+              onChange={(e) => setNewAmount(e.target.value)} 
             />
           </DialogContent>
           <DialogActions>

@@ -67,35 +67,47 @@ const PasaheroDashboard = () => {
   
       let requestsData = response.data;
   
-      // Check if the data is not an array
       if (!Array.isArray(requestsData)) {
-        // If it's an object with a data property that's an array, use that
+
         if (requestsData.data && Array.isArray(requestsData.data)) {
           requestsData = requestsData.data;
         } else {
-          // If it's neither an array nor an object with a data array, log an error and set an empty array
           console.error("Unexpected data format:", requestsData);
           setRideRequests([]);
           return;
         }
       }
-  
-      // Map the data to ensure it matches the DataGrid requirements
-      const formattedRequests = requestsData.map(request => ({
-        id: request.ridereqid, // DataGrid requires a unique 'id' field
+
+      const specificUserId = localStorage.getItem("userid");
+      const filteredRequests = requestsData.filter(request => request.bookerid == specificUserId);
+
+      const formattedRequests = filteredRequests.map(request => ({
+        id: request.ridereqid, 
         riderid: request.riderid,
         bookerid: request.bookerid,
         origin: request.origin,
         destination: request.destination,
         time: request.time,
         rideprice: request.rideprice,
-        confirmation: request.rideconfirmation // Note: changed from 'rideconfirmation' to match your columns
+        confirmation: request.rideconfirmation 
       }));
   
       setRideRequests(formattedRequests);
     } catch (error) {
       console.error("Error fetching ride requests:", error);
       setRideRequests([]);
+    }
+  };
+
+  const fetchAndStoreAccountNo = async (riderId) => {
+    try {
+      const response = await axios.get(`http://localhost:3004/api/getUserById/${riderId}`);
+      const accountNumber = response.data.accountno;
+
+      // Store account number in local storage
+      localStorage.setItem(`rider_accountno_${riderId}`, accountNumber);
+    } catch (error) {
+      console.error(`Error fetching account number for rider ${riderId}:`, error);
     }
   };
 
@@ -217,6 +229,24 @@ const PasaheroDashboard = () => {
       fetchRideRequests()
     } catch (error) {
       console.error("Error creating ride request:", error.message);
+    }
+  };
+
+  const handlePayRide = async (ride) => {
+    try {
+      const response = await axios.get(`http://localhost:3004/api/getUserById/${ride.riderid}`);
+      const riderAccountNo = response.data.accountno;
+
+      localStorage.setItem("rider accountno", riderAccountNo);
+
+      setSnackbarMessage("Rider account number stored in local storage.");
+      setSnackbarOpen(true);
+
+      // Proceed with the payment logic
+    } catch (error) {
+      console.error("Error fetching rider account number:", error);
+      setErrorSnackbarMessage("Failed to fetch rider account number.");
+      setErrorSnackbarOpen(true);
     }
   };
 

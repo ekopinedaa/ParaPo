@@ -33,8 +33,6 @@ import backgroundImage from "../rsc/riderdashbgimage.png";
 const RiderDashboard = () => {
   const navigate = useNavigate();
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [rideTime, setRideTime] = useState("");
-  const [destination, setDestination] = useState("");
   const [price, setPrice] = useState("");
   const [username, setUsername] = useState("");
   const [total, setTotal] = useState("");
