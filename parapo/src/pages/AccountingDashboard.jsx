@@ -13,6 +13,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import AccountingSidebar from "../components/AccountingSidebar";
 import SearchIcon from "@mui/icons-material/Search";
@@ -32,10 +34,14 @@ const columns = [
 
 const AccountingDashboard = () => {
   const [openModal, setOpenModal] = useState(false);
+  const [openSearchModal, setOpenSearchModal] = useState(false);
   const [newAmount, setNewAmount] = useState("");
   const [extraCharge, setExtraCharge] = useState("");
   const [XtraChargeStorage, setXtraChargeStorage] = useState("");
   const [transactions, setTransactions] = useState([]);
+  const [searchInput, setSearchInput] = useState(""); // New state for search input
+  const [searchedTransaction, setSearchedTransaction] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     fetchExtraCharge();
@@ -46,6 +52,10 @@ const AccountingDashboard = () => {
 
   const handleModalOpen = () => {
     setOpenModal(true);
+  };
+
+  const handleModalSearchOpen = () => {
+    setOpenSearchModal(true);
   };
 
   const handleModalClose = async () => {
@@ -59,6 +69,7 @@ const AccountingDashboard = () => {
         console.log("Extra charge updated successfully:", response.data.data);
         localStorage.setItem("extraCharge", newAmount);
         setXtraChargeStorage(newAmount);
+        setSnackbarOpen(true);
       } else {
         console.error("Failed to update extra charge:", response.data.message);
       }
@@ -67,6 +78,13 @@ const AccountingDashboard = () => {
     } finally {
       setOpenModal(false);
     }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   const fetchExtraCharge = async () => {
@@ -88,7 +106,9 @@ const AccountingDashboard = () => {
 
   const fetchTransactions = async () => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/getAllTransactions`);
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/getAllTransactions`
+      );
       if (response.data.success) {
         setTransactions(response.data.data);
       } else {
@@ -99,26 +119,25 @@ const AccountingDashboard = () => {
     }
   };
 
+  const handleSearchChange = (event) => {
+    setSearchInput(event.target.value);
+  };
 
-  const users = [
-    {
-      userId: 1,
-      firstName: "John",
-      lastName: "Doe",
-      accountNo: "123456789",
-      amount: "200",
-      TransactionType: "withdraw",
-    },
-    {
-      userId: 2,
-      firstName: "Jake",
-      lastName: "Dawson",
-      accountNo: "987654321",
-      amount: "100",
-      TransactionType: "transfer",
-    },
-    // Add more user data as needed
-  ];
+  const handleSearchClick = async () => {
+    try {
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/getTransactionById/${searchInput}`
+      );
+      if (response.data.success) {
+        setSearchedTransaction(response.data.data);
+        setOpenSearchModal(true);
+      } else {
+        console.error("Failed to fetch transaction:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching transaction:", error);
+    }
+  };
 
   return (
     <div className="flex">
@@ -131,34 +150,39 @@ const AccountingDashboard = () => {
           </h2>
           <button
             onClick={handleModalOpen}
-            className={`w-[5rem] h-[2.35rem] p-[.5rem] ml-8 rounded-md flex items-center gap-[.5rem] duration-300 ease hover:bg-customYellow hover:text-customLightBlue border-black justify-center`}
+            className={`w-[5rem] h-[2.35rem] p-[.5rem] ml-8 rounded-md flex items-center gap-[.5rem] hover:bg-customYellow hover:text-customLightBlue border-gray-400 justify-center`}
           >
             <ModeEditOutlineIcon />
           </button>
           <div className="w-[30rem] ml-auto flex items-center">
-            <TextField
+          <TextField
               label="Search Transactions"
               variant="outlined"
               fullWidth
+              value={searchInput}
+              onChange={handleSearchChange}
             />
-            <SearchIcon
-              sx={{ fontSize: 45, marginLeft: ".5rem", marginTop: ".25rem" }}
-            />
+            <button
+              onClick={handleSearchClick}
+              className="ml-[.5rem] rounded-md flex items-center gap-[.5rem] hover:bg-customYellow hover:text-customLightBlue border-gray-400 justify-center"
+            >
+              <SearchIcon sx={{ fontSize: 45 }} />
+            </button>
           </div>
         </div>
         <Paper elevation={3}>
           <div className="h-631 w-full">
-          <DataGrid
-                  rows={transactions}
-                  columns={columns}
-                  initialState={{
-                    pagination: {
-                      paginationModel: { page: 0, pageSize: 10 },
-                    },
-                  }}
-                  pageSizeOptions={[10, 15]}
-                  getRowId={(row) => row.transactionsid}
-                />
+            <DataGrid
+              rows={transactions}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: { page: 0, pageSize: 10 },
+                },
+              }}
+              pageSizeOptions={[10, 15]}
+              getRowId={(row) => row.transactionsid}
+            />
           </div>
         </Paper>
         <Dialog open={openModal} onClose={() => setOpenModal(false)}>
@@ -180,6 +204,49 @@ const AccountingDashboard = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+
+        <Dialog
+          open={openSearchModal}
+          onClose={() => setOpenSearchModal(false)}
+          aria-labelledby="transaction-dialog-title"
+        >
+          <DialogTitle id="transaction-dialog-title">Transaction Details</DialogTitle>
+          <DialogContent>
+            {searchedTransaction ? (
+              <div>
+                <p><strong>Transaction ID:</strong> {searchedTransaction.transactionsid}</p>
+                <p><strong>From ID:</strong> {searchedTransaction.fromid}</p>
+                <p><strong>To ID:</strong> {searchedTransaction.toid}</p>
+                <p><strong>Booker Account No:</strong> {searchedTransaction.fromaccno}</p>
+                <p><strong>Transferred Account No:</strong> {searchedTransaction.toaccno}</p>
+                <p><strong>Amount:</strong> {searchedTransaction.amount}</p>
+              </div>
+            ) : (
+              <p>No transaction details available.</p>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenSearchModal(false)} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+        >
+          <Alert
+            onClose={handleSnackbarClose}
+            severity="success"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            Extra charge updated successfully!
+          </Alert>
+        </Snackbar>
       </div>
     </div>
   );
