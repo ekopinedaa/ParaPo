@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -8,11 +8,51 @@ import {
   TableRow,
   Paper,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import AdminSidebar from "../components/AdminSidebar";
-import { SERVER_IP } from '../../config';
+import axios from "axios"; // Import Axios
+import { DataGrid } from "@mui/x-data-grid";
+import { SERVER_IP } from "../../config";
+
+const columns = [
+  { field: "ridereqid", headerName: "Ride Request ID", width: 150 },
+  { field: "bookerid", headerName: "Booker ID", width: 130 },
+  { field: "riderid", headerName: "Rider Requested", width: 180 },
+  { field: "origin", headerName: "Location", width: 200 },
+  { field: "destination", headerName: "Destination", width: 230 },
+  { field: "time", headerName: "Time", width: 230 },
+  { field: "rideprice", headerName: "Ride Price", width: 230 },
+  { field: "rideconfirmation", headerName: "Confirmation", width: 250 },
+];
 
 const ViewRideRequests = () => {
+  const [rideRequests, setRideRequests] = useState([]);
+
+  useEffect(() => {
+
+    fetchRideRequests();
+  }, []);
+
+  const fetchRideRequests = async () => {
+    try {
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/GetRideRequest`
+      );
+      if(response.data.success) {
+        setRideRequests(response.data.data)
+      } else {
+        console.error("Failed to fetch Ride Requests: ", response.data.message);
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  };
+
   const usersData = [
     {
       ridereqID: 2,
@@ -54,59 +94,20 @@ const ViewRideRequests = () => {
       <div className="items-center justify-center w-[105rem] p-8">
         <h2 className="text-2xl font-bold mb-4 w-[20rem]">RIDE REQUESTS</h2>
         <Paper elevation={3}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Ride Request ID</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Booker ID</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Rider Requested</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Location</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Destination</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Time</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Ride Price</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Ride Confirmation</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {usersData.map((user) => (
-                  <TableRow key={user.ridereqID}>
-                    <TableCell>{user.ridereqID}</TableCell>
-                    <TableCell>{user.bookerID}</TableCell>
-                    <TableCell>{user.riderrequestedID}</TableCell>
-                    <TableCell>{user.location}</TableCell>
-                    <TableCell>{user.destination}</TableCell>
-                    <TableCell>{user.time}</TableCell>
-                    <TableCell>{user.rideprice}</TableCell>
-                    <TableCell>{user.rideconfirmation}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+        <div className="h-631 w-full">
+            <DataGrid
+              rows={rideRequests}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: { page: 0, pageSize: 10 },
+                },
+              }}
+              pageSizeOptions={[10, 15]}
+              getRowId={(row) => row.ridereqid}
+            />
+          </div>
         </Paper>
-        <div className="mt-4 flex justify-center">
-          <Button
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-            variant="outlined"
-            color="primary"
-          >
-            Previous
-          </Button>
-          <span className="ml-4 mr-4">
-            Page {currentPage} of {Math.ceil(usersData.length / itemsPerPage)}
-          </span>
-          <Button
-            onClick={() => paginate(currentPage + 1)}
-            disabled={indexOfLastUser >= usersData.length}
-            variant="outlined"
-            color="primary"
-            className="ml-4"
-          >
-            Next
-          </Button>
-        </div>
       </div>
     </div>
   );
