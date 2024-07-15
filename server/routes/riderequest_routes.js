@@ -6,7 +6,7 @@ const RideRequestController = require('../controllers/riderequest_controller')
 router.post('/AddRideRequest', RideRequestController.createRideRequest);
 router.get('/GetRideRequest', RideRequestController.getRideRequests);
 router.get('/GetRideRequest/:id', RideRequestController.getRideRequestById);
-router.delete('/DeleteRideRequest/:id', RideRequestController.deleteRideRequestById);
+router.delete('/DeleteRideRequest/:ridereqid', RideRequestController.deleteRideRequestById);
 router.put('/UpdateRideRequest/:ridereqid', RideRequestController.updateRideRequestById);
 
 module.exports = router;

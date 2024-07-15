@@ -25,7 +25,6 @@ const UserController = {
     getUserById: async (req, res) => {
         try {
             const user = await Users.findOne({ userid: req.params.userid });
-            console.log(user)
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }

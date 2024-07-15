@@ -4,6 +4,7 @@ const connectDb = require('../config/db');
 const UserRouter = require('../routes/user_routes');
 const TransactionRouter = require('../routes/transaction_routes');
 const RideRequestRouter = require('../routes/riderequest_routes');
+const RideRouter = require('../routes/rides_routes');
 const dotenv = require('dotenv')
 dotenv.config()
 
@@ -19,8 +20,9 @@ app.use(cors({
 
 //routes
 app.use('/api', UserRouter);
-app.use('/api', TransactionRouter)
-app.use('/api', RideRequestRouter)
+app.use('/api', TransactionRouter);
+app.use('/api', RideRequestRouter);
+app.use('/api', RideRouter);
 
 
 const startServer = async () => {

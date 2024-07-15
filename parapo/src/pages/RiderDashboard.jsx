@@ -66,6 +66,7 @@ const RiderDashboard = () => {
           onChange={(e) => handleTotalChange(params.id, e.target.value)}
           variant="standard"
           fullWidth
+          disabled={params.row.confirmation === "accepted"}
         />
       ),
     },
@@ -102,6 +103,16 @@ const RiderDashboard = () => {
     const riderUserId = localStorage.getItem("userid");
     const RideReqAcceptID = ride.ridereqid;
     const SetPriceRide = parseInt(ride.rideprice, 10) + XtraChargePrice;
+
+    if (!ride.rideprice) {
+      alert("Please enter a price for the ride.");
+      return;
+    }
+
+    if (isNaN(ride.rideprice)) {
+      alert("Please enter a valid number for the ride price.");
+      return;
+    }
 
     console.log(SetPriceRide);
     console.log(RideReqAcceptID);

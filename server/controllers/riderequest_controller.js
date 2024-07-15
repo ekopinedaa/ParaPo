@@ -62,8 +62,8 @@ const RideRequestController = {
 
     deleteRideRequestById: async (req, res) => {
         try {
-            const { id } = req.params;
-            const deletedRideRequest = await RideRequestModel.findByIdAndDelete(id);
+            const { ridereqid } = req.params;
+            const deletedRideRequest = await RideRequestModel.findOneAndDelete({ ridereqid });
 
             if (!deletedRideRequest) {
                 return res.status(404).json({ success: false, message: 'Ride request not found' });
@@ -71,7 +71,7 @@ const RideRequestController = {
 
             res.status(200).json({ success: true, data: deletedRideRequest });
         } catch (error) {
-            console.error('Error deleting ride request:', error.message);
+            console.log(error)
             res.status(500).send('Server Error');
         }
     },

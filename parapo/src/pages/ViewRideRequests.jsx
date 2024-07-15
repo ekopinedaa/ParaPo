@@ -44,7 +44,12 @@ const ViewRideRequests = () => {
         `http://${SERVER_IP}:3004/api/GetRideRequest`
       );
       if(response.data.success) {
-        setRideRequests(response.data.data)
+
+        const filteredRequests = response.data.data.filter(
+          (request) => request.rideconfirmation === "pending"
+        );
+
+        setRideRequests(filteredRequests)
       } else {
         console.error("Failed to fetch Ride Requests: ", response.data.message);
       }

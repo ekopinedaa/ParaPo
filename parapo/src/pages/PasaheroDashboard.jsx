@@ -26,14 +26,12 @@ import { useNavigate } from "react-router-dom";
 import { Close as CloseIcon, LocalSeeTwoTone } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
-import backgroundImage from "../rsc/Pasaherobgimage.png";
 import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDown";
 import NearMeIcon from "@mui/icons-material/NearMe";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import PaymentIcon from "@mui/icons-material/Payment";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import { SERVER_IP } from '../../config';
+
+import { SERVER_IP } from "../../config";
 
 const PasaheroDashboard = () => {
   const navigate = useNavigate();
@@ -63,13 +61,14 @@ const PasaheroDashboard = () => {
 
   const fetchRideRequests = async () => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/GetRideRequest`);
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/GetRideRequest`
+      );
       console.log("API Response:", response.data);
-  
-      let requestsData = response.data;
-  
-      if (!Array.isArray(requestsData)) {
 
+      let requestsData = response.data;
+
+      if (!Array.isArray(requestsData)) {
         if (requestsData.data && Array.isArray(requestsData.data)) {
           requestsData = requestsData.data;
         } else {
@@ -80,19 +79,21 @@ const PasaheroDashboard = () => {
       }
 
       const specificUserId = localStorage.getItem("userid");
-      const filteredRequests = requestsData.filter(request => request.bookerid == specificUserId);
+      const filteredRequests = requestsData.filter(
+        (request) => request.bookerid == specificUserId
+      );
 
-      const formattedRequests = filteredRequests.map(request => ({
-        id: request.ridereqid, 
+      const formattedRequests = filteredRequests.map((request) => ({
+        id: request.ridereqid,
         riderid: request.riderid,
         bookerid: request.bookerid,
         origin: request.origin,
         destination: request.destination,
         time: request.time,
         rideprice: request.rideprice,
-        confirmation: request.rideconfirmation 
+        confirmation: request.rideconfirmation,
       }));
-  
+
       setRideRequests(formattedRequests);
     } catch (error) {
       console.error("Error fetching ride requests:", error);
@@ -102,13 +103,18 @@ const PasaheroDashboard = () => {
 
   const fetchAndStoreAccountNo = async (riderId) => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/getUserById/${riderId}`);
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/getUserById/${riderId}`
+      );
       const accountNumber = response.data.accountno;
 
       // Store account number in local storage
       localStorage.setItem(`rider_accountno_${riderId}`, accountNumber);
     } catch (error) {
-      console.error(`Error fetching account number for rider ${riderId}:`, error);
+      console.error(
+        `Error fetching account number for rider ${riderId}:`,
+        error
+      );
     }
   };
 
@@ -134,8 +140,8 @@ const PasaheroDashboard = () => {
 
   const columns = [
     { field: "id", headerName: "", width: 70 },
-    { field: "bookerid", headerName: "User ID", width: 80},
-    { field: "riderid", headerName: "Rider ID", width: 90},
+    { field: "bookerid", headerName: "User ID", width: 80 },
+    { field: "riderid", headerName: "Rider ID", width: 90 },
     { field: "origin", headerName: "Location", width: 150 },
     { field: "destination", headerName: "Destination", width: 150 },
     { field: "time", headerName: "Time", width: 150 },
@@ -194,7 +200,7 @@ const PasaheroDashboard = () => {
 
   const handleRequestRide = async () => {
     // Check if any of the required fields are empty
-    if (!location || !destination ) {
+    if (!location || !destination) {
       setErrorSnackbarMessage(
         "Please fill out all fields before requesting a ride."
       );
@@ -227,7 +233,7 @@ const PasaheroDashboard = () => {
       setLocation("");
       setDestination("");
       setAmount("");
-      fetchRideRequests()
+      fetchRideRequests();
     } catch (error) {
       console.error("Error creating ride request:", error.message);
     }
@@ -235,15 +241,41 @@ const PasaheroDashboard = () => {
 
   const handlePayRide = async (ride) => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/getUserById/${ride.riderid}`);
-      const riderAccountNo = response.data.accountno;
-
+      const UserResponse = await axios.get(
+        `http://${SERVER_IP}:3004/api/getUserById/${ride.riderid}`
+      );
+      const riderAccountNo = UserResponse.data.accountno;
       localStorage.setItem("rider accountno", riderAccountNo);
 
-      setSnackbarMessage("Rider account number stored in local storage.");
+      // Add Ride logic here
+      const RideResponse = await axios.post(
+        `http://${SERVER_IP}:3004/api/AddRide`,
+        {
+          bookerid: ride.bookerid,
+          riderid: ride.riderid,
+          origin: ride.origin,
+          destination: ride.destination,
+          time: ride.time,
+          ridetotal: ride.rideprice,
+        }
+      );
+
+      console.log("Ride added:", RideResponse.data);
+
+      // Delete the ride request from the table
+      console.log(ride.id)
+      const deleteResponse = await axios.delete(
+        `http://${SERVER_IP}:3004/api/DeleteRideRequest/${ride.id}`
+      );
+      console.log("Ride request deleted:", deleteResponse.data);
+
+      setSnackbarMessage("Your payment has been Charged and Recorded. Thank you for choosing ParaPo");
       setSnackbarOpen(true);
 
       // Proceed with the payment logic
+
+
+      fetchRideRequests();
     } catch (error) {
       console.error("Error fetching rider account number:", error);
       setErrorSnackbarMessage("Failed to fetch rider account number.");
