@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,41 +12,44 @@ import {
 } from "@mui/material";
 import AdminSidebar from "../components/AdminSidebar";
 import SearchIcon from '@mui/icons-material/Search';
+import axios from "axios"; // Import Axios
+import { DataGrid } from "@mui/x-data-grid";
 import { SERVER_IP } from '../../config';
 
+const columns = [
+  { field: "rideid", headerName: "Ride ID", width: 150 },
+  { field: "bookerid", headerName: "Booker ID", width: 130 },
+  { field: "riderid", headerName: "Rider ID", width: 180 },
+  { field: "origin", headerName: "Origin", width: 200 },
+  { field: "destination", headerName: "Destination", width: 230 },
+  { field: "time", headerName: "Time", width: 130 },
+  { field: "ridetotal", headerName: "Ride Total", width: 130 },
+];
+
 const ViewRides = () => {
-  const usersData = [
-    {
-      RideID: 1,
-      BookerID: 1,
-      RiderID: 3,
-      Origin: "SMU Gate 1",
-      Destination: "Capitol",
-      Time: "Afternoon",
-      RideTotal: 120,
-    },
-    {
-      RideID: 2,
-      BookerID: 5,
-      RiderID: 8,
-      Origin: "Solano LGU",
-      Destination: "SMU Gate 2",
-      Time: "Morning",
-      RideTotal: 150,
-    },
-    // Add more user data as needed
-  ];
+  const [rides, setRides] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const itemsPerPage = 5; // Number of items to display per page
-  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => {
+    fetchRides();
+  }, []);
 
-  // Pagination logic
-  const indexOfLastUser = currentPage * itemsPerPage;
-  const indexOfFirstUser = indexOfLastUser - itemsPerPage;
-  const currentUsers = usersData.slice(indexOfFirstUser, indexOfLastUser);
 
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const fetchRides = async () => {
+    try {
+      const response = await axios.get(`http://${SERVER_IP}:3004/api/GetAllRides`);
+      console.log(response)
+      if (response.data.success) {
+        setRides(response.data.data);
+      } else {
+        console.error("Failed to fetch Ride Requests: ", response.data.message);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
 
   return (
     <div className="flex">
@@ -64,57 +67,28 @@ const ViewRides = () => {
           </div>
         </div>
         <Paper elevation={3}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Ride ID</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Booker ID</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Rider ID</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Origin</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Destination</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Time</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Ride Total</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {usersData.map((user) => (
-                  <TableRow key={user.RideID}>
-                    <TableCell>{user.RideID}</TableCell>
-                    <TableCell>{user.BookerID}</TableCell>
-                    <TableCell>{user.RiderID}</TableCell>
-                    <TableCell>{user.Origin}</TableCell>
-                    <TableCell>{user.Destination}</TableCell>
-                    <TableCell>{user.Time}</TableCell>
-                    <TableCell>{user.RideTotal}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <div className="h-631 w-full">
+            <DataGrid
+              rows={rides}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: { page: 0, pageSize: 10 },
+                },
+              }}
+              pageSizeOptions={[10, 15]}
+              getRowId={(row) => row.rideid}
+              sx={{
+                "& .MuiDataGrid-columnHeaders": {
+                  backgroundColor: "#f5f5f5",
+                },
+                "& .MuiDataGrid-columnHeaderTitle": {
+                  fontWeight: "bold",
+                },
+              }}
+            />
+          </div>
         </Paper>
-        <div className="mt-4 flex justify-center">
-          <Button
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-            variant="outlined"
-            color="primary"
-          >
-            Previous
-          </Button>
-          <span className="ml-4 mr-4">
-            Page {currentPage} of {Math.ceil(usersData.length / itemsPerPage)}
-          </span>
-          <Button
-            onClick={() => paginate(currentPage + 1)}
-            disabled={indexOfLastUser >= usersData.length}
-            variant="outlined"
-            color="primary"
-            className="ml-4"
-          >
-            Next
-          </Button>
-        </div>
       </div>
     </div>
   );

@@ -7,7 +7,6 @@ export default defineConfig({
   plugins: [react()],
   server:{
     host: `${SERVER_IP}`,
-    //host: '192.168.1.20',
     port: '80',
     open: true
   }

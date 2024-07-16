@@ -25,8 +25,8 @@ const columns = [
   { field: "riderid", headerName: "Rider Requested", width: 180 },
   { field: "origin", headerName: "Location", width: 200 },
   { field: "destination", headerName: "Destination", width: 230 },
-  { field: "time", headerName: "Time", width: 230 },
-  { field: "rideprice", headerName: "Ride Price", width: 230 },
+  { field: "time", headerName: "Time", width: 130 },
+  { field: "rideprice", headerName: "Ride Price", width: 130 },
   { field: "rideconfirmation", headerName: "Confirmation", width: 250 },
 ];
 
@@ -110,6 +110,14 @@ const ViewRideRequests = () => {
               }}
               pageSizeOptions={[10, 15]}
               getRowId={(row) => row.ridereqid}
+              sx={{
+                '& .MuiDataGrid-columnHeaders': {
+                  backgroundColor: '#f5f5f5',
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  fontWeight: 'bold',
+                },
+              }}
             />
           </div>
         </Paper>

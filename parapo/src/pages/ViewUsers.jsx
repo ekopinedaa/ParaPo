@@ -105,6 +105,14 @@ const ViewUsers = () => {
               }}
               pageSizeOptions={[10, 15]}
               getRowId={(row) => row.userid}
+              sx={{
+                '& .MuiDataGrid-columnHeaders': {
+                  backgroundColor: '#f5f5f5',
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  fontWeight: 'bold',
+                },
+              }}
             />
           </div>
         </Paper>

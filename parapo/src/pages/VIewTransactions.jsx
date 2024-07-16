@@ -20,10 +20,10 @@ import { SERVER_IP } from "../../config";
 const columns = [
   { field: "transactionsid", headerName: "Transaction ID", width: 250 },
   { field: "fromid", headerName: "From ID", width: 130 },
-  { field: "toid", headerName: "To ID", width: 150 },
+  { field: "toid", headerName: "To ID", width: 300 },
   { field: "fromaccno", headerName: "Booker Account No", width: 200 },
-  { field: "toaccno", headerName: "Transferred Account No", width: 230 },
-  { field: "amount", headerName: "Amount", width: 230 },
+  { field: "toaccno", headerName: "Transferred Account No", width: 450 },
+  { field: "amount", headerName: "Amount", width: 130 },
 ];
 
 const VIewTransactions = () => {
@@ -206,6 +206,14 @@ const VIewTransactions = () => {
               }}
               pageSizeOptions={[10, 15]}
               getRowId={(row) => row.transactionsid}
+              sx={{
+                '& .MuiDataGrid-columnHeaders': {
+                  backgroundColor: '#f5f5f5',
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  fontWeight: 'bold',
+                },
+              }}
             />
           </div>
         </Paper>

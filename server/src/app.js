@@ -18,6 +18,10 @@ app.use(cors({
   credentials: true,
 }));
 
+app.get('/', (req,res) =>{
+  res.json({message: "Message"})
+})
+
 //routes
 app.use('/api', UserRouter);
 app.use('/api', TransactionRouter);
