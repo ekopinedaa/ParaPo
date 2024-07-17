@@ -260,8 +260,10 @@ const PasaheroDashboard = () => {
       setAmount("");
       fetchRideRequests();
 
+      const parsedUserId = parseInt(userid, 10)
+
       await createAuditLog({
-        userid: userid,
+        userid: parsedUserId,
         username: username,
         userrole: usertype,
         action: "Requested A Ride"

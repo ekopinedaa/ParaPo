@@ -28,7 +28,7 @@ app.use('/api', UserRouter);
 app.use('/api', TransactionRouter);
 app.use('/api', RideRequestRouter);
 app.use('/api', RideRouter);
-
+app.use('/api', AuditLogRouter);
 
 const startServer = async () => {
     await connectDb(); // Wait for the database connection to be established

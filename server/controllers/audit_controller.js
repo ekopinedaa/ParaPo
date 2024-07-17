@@ -3,17 +3,15 @@ const AuditLogModel = require('../model/audit_logs_model')
 const AuditLogController = {
     createAuditLog: async (req, res) => {
         const { userid, username, userrole, action } = req.body;
-        const date = currentDate.toISOString().split('T')[0];
-        const time = currentDate.toTimeString().split(' ')[0];
 
         try {
             const newAuditLog = new AuditLogModel({
                 userid,
                 username,
                 userrole,
-                date,
-                time,
-                action
+                action,
+                date: new Date(), // Automatically set the current date and time
+                time: new Date().toLocaleTimeString()
             });
 
             const savedAuditLog = await newAuditLog.save();
