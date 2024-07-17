@@ -5,6 +5,7 @@ const UserRouter = require('../routes/user_routes');
 const TransactionRouter = require('../routes/transaction_routes');
 const RideRequestRouter = require('../routes/riderequest_routes');
 const RideRouter = require('../routes/rides_routes');
+const AuditLogRouter = require('../routes/audit_logs_routes');
 const dotenv = require('dotenv')
 dotenv.config()
 

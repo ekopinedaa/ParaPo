@@ -2,12 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Button,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   Snackbar,
   Alert,
@@ -23,14 +17,13 @@ import {
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Close as CloseIcon, LocalSeeTwoTone } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDown";
 import NearMeIcon from "@mui/icons-material/NearMe";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import PaymentIcon from "@mui/icons-material/Payment";
-
+import createAuditLog from "../utils/Auditlogger";
 import { SERVER_IP } from "../../config";
 
 const PasaheroDashboard = () => {
@@ -41,22 +34,27 @@ const PasaheroDashboard = () => {
   const [accountno, setAccountno] = useState();
   const [location, setLocation] = useState("");
   const [destination, setDestination] = useState("");
+  const [usertype,setUsertype] = useState("")
   const [amount, setAmount] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Success Snackbar
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Success Snackbar message
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false); // State for Error Snackbar
   const [errorSnackbarMessage, setErrorSnackbarMessage] = useState(""); // Error Snackbar message
   const [rideRequests, setRideRequests] = useState([]);
+  const [rideHistory, setRideHistory] = useState([]);
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     const storedAccountno = localStorage.getItem("accountno");
     const storedUserId = localStorage.getItem("userid");
+    const storedUsertype = localStorage.getItem("usertype");
+    setUsertype(storedUsertype);
     setUsername(storedUsername);
     setAccountno(storedAccountno);
     setUserid(storedUserId);
 
     fetchRideRequests();
+    fetchRideHistory();
   }, []);
 
   const fetchRideRequests = async () => {
@@ -118,26 +116,6 @@ const PasaheroDashboard = () => {
     }
   };
 
-  const [rideHistory, setRideHistory] = useState([
-    {
-      id: 1,
-      time: "08:00 AM",
-      destination: "Airport",
-      rider: "John Doe",
-      total: "$20",
-      vehicle: "Car",
-    },
-    {
-      id: 2,
-      time: "10:30 AM",
-      destination: "Shopping Mall",
-      rider: "Jane Smith",
-      total: "$15",
-      vehicle: "Motorcycle",
-    },
-    // Add more ride history data as needed
-  ]);
-
   const columns = [
     { field: "id", headerName: "", width: 70 },
     { field: "bookerid", headerName: "User ID", width: 80 },
@@ -163,6 +141,56 @@ const PasaheroDashboard = () => {
       ),
     },
   ];
+
+  const rideHistoryColumns = [
+    { field: "rideid", headerName: "Ride Id", width: 150 },
+    { field: "riderid", headerName: "Rider", width: 230 },
+    { field: "bookerid", headerName: "Booker ID", width: 230 },
+    { field: "origin", headerName: "Origin", width: 150 },
+    { field: "destination", headerName: "Destination", width: 150 },
+    { field: "time", headerName: "Time", width: 150 },
+    { field: "ridetotal", headerName: "Total", width: 150 },
+  ];
+
+  const fetchRideHistory = async () => {
+    try {
+      const response = await axios.get(`http://${SERVER_IP}:3004/api/GetAllRides`);
+      const bookerUserId = localStorage.getItem("userid");
+
+      let ridesData = response.data;
+
+      if (!Array.isArray(ridesData)) {
+        if (ridesData.data && Array.isArray(ridesData.data)) {
+          ridesData = ridesData.data;
+        } else {
+          console.error("Unexpected data format:", ridesData);
+          setRideHistory([]);
+          return;
+        }
+      }
+
+      const filteredHistory = ridesData.filter(
+        (ride) => ride.bookerid === parseInt(bookerUserId, 10)
+      );
+
+      const formattedHistory = filteredHistory.map((ride) => ({
+        id: ride.rideid,
+        rideid: ride.rideid,
+        riderid: ride.riderid,
+        bookerid: ride.bookerid,
+        origin: ride.origin,
+        destination: ride.destination,
+        time: ride.time,
+        ridetotal: ride.ridetotal
+      }));
+
+      setRideHistory(formattedHistory);
+    } catch (error) {
+      console.error("Error fetching ride history:", error);
+      setRideHistory([]);
+    }
+  };
+
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -222,9 +250,6 @@ const PasaheroDashboard = () => {
         }
       );
 
-      // Update ride history state with new ride
-      setRideHistory([...rideHistory, response.data.data]);
-
       setSnackbarMessage(
         "Your request has been made. Please wait for a rider to confirm."
       );
@@ -234,6 +259,13 @@ const PasaheroDashboard = () => {
       setDestination("");
       setAmount("");
       fetchRideRequests();
+
+      await createAuditLog({
+        userid: userid,
+        username: username,
+        userrole: usertype,
+        action: "Requested A Ride"
+      })
     } catch (error) {
       console.error("Error creating ride request:", error.message);
     }
@@ -453,34 +485,23 @@ const PasaheroDashboard = () => {
       </div>
 
       <div className="p-8">
-        <div className="mb-8">
-          <h3 className="text-xl font-bold mb-4">Ride History</h3>
-          <Paper elevation={3}>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Time</TableCell>
-                    <TableCell>Destination</TableCell>
-                    <TableCell>Rider</TableCell>
-                    <TableCell>Total</TableCell>
-                    <TableCell>Vehicle</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rideHistory.map((ride) => (
-                    <TableRow key={ride.id}>
-                      <TableCell>{ride.time}</TableCell>
-                      <TableCell>{ride.destination}</TableCell>
-                      <TableCell>{ride.rider}</TableCell>
-                      <TableCell>{ride.total}</TableCell>
-                      <TableCell>{ride.vehicle}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
+      <div className="mb-8">
+          <h3 className="text-xl font-bold mb-4 flex justify-center mb-[3rem]">Ride History</h3>
+          <div className="w-full flex align-center items-center justify-center">
+            <Paper elevation={3}>
+              <DataGrid
+                rows={rideHistory}
+                columns={rideHistoryColumns}
+                initialState={{
+                  pagination: {
+                    paginationModel: { page: 0, pageSize: 5 },
+                  },
+                }}
+                pageSizeOptions={[5, 10]}
+                getRowId={(row) => row.rideid}
+              />
+            </Paper>
+          </div>
         </div>
       </div>
 

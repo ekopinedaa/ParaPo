@@ -1,14 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Box,
   IconButton,
   Drawer,
@@ -22,26 +15,78 @@ import backgroundImage from "../rsc/Pasaherobgimage.png";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
+import axios from "axios"; // Import Axios
 import { SERVER_IP } from '../../config';
 
 const UpdateAccount = () => {
   const navigate = useNavigate();
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [userid, setUserid] = useState("");
+  const [firstname, setFirstName] = useState("");
+  const [lastname, setLastName] = useState("");
+  const [contactno, setContactno] = useState("")
+  const [accountno, setAccountno] = useState("")
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [usertype, setUsertype] = useState("");
+  const [usernamedisplay, setUsernamdisplay] = useState("");
 
-  const handleUpdate = () => {
-    // Handle update logic here (e.g., API call)
-    console.log("Updating profile:", {
-      username,
-      password,
-      firstName,
-      lastName,
-    });
-    // Placeholder: Redirect to dashboard or show success message
-    navigate("/"); // Redirect to dashboard after update
+
+  useEffect(() => {
+    const storedUserid = localStorage.getItem("userid");
+    const storedUsername = localStorage.getItem("username");
+    setUsernamdisplay(storedUsername);
+    setUserid(storedUserid);
+
+    fetchUserDetails(storedUserid);
+  }, []);
+
+  const fetchUserDetails = async (userid) => {
+    try {
+      const response = await axios.get(`http://${SERVER_IP}:3004/api/getUserById/${userid}`);
+      const userData = response.data;
+      setFirstName(userData.firstname);
+      setLastName(userData.lastname);
+      setContactno(userData.contactno);
+      setAccountno(userData.accountno);
+      setUsername(userData.username);
+      setUsertype(userData.usertype);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const response = await axios.put(`http://${SERVER_IP}:3004/api/UpdateUser/${userid}`, {
+        firstname,
+        lastname,
+        contactno,
+        accountno,
+        username,
+        password,
+      });
+      // Handle response and show success message or redirect
+      console.log("Profile updated successfully:", response.data);
+
+      localStorage.setItem("firstname", firstname);
+      localStorage.setItem("lastname", lastname);
+      localStorage.setItem("contactno", contactno);
+      localStorage.setItem("accountno", accountno);
+      localStorage.setItem("username", username);
+      localStorage.setItem("password", password)
+
+
+      if (usertype == "pasahero") {
+        navigate("/pasahero")
+      }
+      else if (usertype == "rider") {
+        navigate("/rider");
+      }
+
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
   const toggleDrawer = (open) => (event) => {
@@ -83,7 +128,7 @@ const UpdateAccount = () => {
       <div className="bg-customBlue top-0 w-full h-[7rem] flex items-center text-customWhite">
         <div className="p-8 justify-start">
           <h1 className="text-roboto text-2xl font-bold flex">
-            Welcome *User*! Care to Book a Ride?
+            Welcome {usernamedisplay}! Care to Book a Ride?
           </h1>
         </div>
         <div className="p-8 absolute right-0 items-center">
@@ -123,6 +168,8 @@ const UpdateAccount = () => {
                     fullWidth
                     label="First Name"
                     variant="filled"
+                    value={firstname}
+                    onChange={(e) => setFirstName(e.target.value)}
                     sx={{
                       backgroundColor: "white",
                       borderRadius: 1,
@@ -132,6 +179,8 @@ const UpdateAccount = () => {
                     fullWidth
                     label="Last Name"
                     variant="filled"
+                    value={lastname}
+                    onChange={(e) => setLastName(e.target.value)}
                     sx={{
                       backgroundColor: "white",
                       borderRadius: 1,
@@ -143,6 +192,8 @@ const UpdateAccount = () => {
                     fullWidth
                     label="Contact Number"
                     variant="filled"
+                    value={contactno}
+                    onChange={(e) => setContactNo(e.target.value)}
                     sx={{
                       backgroundColor: "white",
                       borderRadius: 1,
@@ -154,6 +205,8 @@ const UpdateAccount = () => {
                     fullWidth
                     label="Bank Account Number"
                     variant="filled"
+                    value={accountno}
+                    onChange={(e) => setAccountNo(e.target.value)}
                     sx={{
                       backgroundColor: "white",
                       borderRadius: 1,
@@ -165,6 +218,8 @@ const UpdateAccount = () => {
                     fullWidth
                     label="Username"
                     variant="filled"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     sx={{
                       backgroundColor: "white",
                       borderRadius: 1,
@@ -177,6 +232,8 @@ const UpdateAccount = () => {
                     label="Password"
                     variant="filled"
                     type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     sx={{
                       backgroundColor: "white",
                       borderRadius: 1,
@@ -189,6 +246,7 @@ const UpdateAccount = () => {
                   variant="contained"
                   color="primary"
                   fullWidth
+                  onClick={handleUpdate}
                 >
                   Update Profile
                 </Button>
