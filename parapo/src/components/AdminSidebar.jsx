@@ -8,6 +8,8 @@ import AlignHorizontalLeftIcon from '@mui/icons-material/AlignHorizontalLeft';
 import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
 import PaidIcon from '@mui/icons-material/Paid';
 import FormatListNumberedRtlIcon from '@mui/icons-material/FormatListNumberedRtl';
+import ComputerIcon from '@mui/icons-material/Computer';
+import SportsMotorsportsIcon from '@mui/icons-material/SportsMotorsports';
 
 const LinksTop = [
   {
@@ -19,6 +21,8 @@ const LinksTop = [
   { id: 2, linkto: "/ViewRides", icon: <DirectionsCarFilledIcon />, name: "View Rides" },
   { id: 3, linkto: "/ViewTransactions", icon: <PaidIcon />, name: "View Transactions" },
   { id: 4, linkto: "/ViewRideRequests", icon: <FormatListNumberedRtlIcon />, name: "View Ride Requests" },
+  { id: 5, linkto: "/pasahero", icon: <ComputerIcon/>, name: "Pasahero Dashboard"},
+  { id: 6, linkto: "/rider", icon: <SportsMotorsportsIcon/>, name: "Rider Dashboard"}
 ];
 
 const LinksBottom = [

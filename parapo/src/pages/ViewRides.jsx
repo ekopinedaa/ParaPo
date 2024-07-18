@@ -2,13 +2,20 @@ import React, { useState, useEffect } from "react";
 import {
   TextField,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import AdminSidebar from "../components/AdminSidebar";
-import SearchIcon from '@mui/icons-material/Search';
+import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios"; // Import Axios
 import createAuditLog from "../utils/Auditlogger";
 import { DataGrid } from "@mui/x-data-grid";
-import { SERVER_IP } from '../../config';
+import { SERVER_IP } from "../../config";
 
 const columns = [
   { field: "rideid", headerName: "Ride ID", width: 150 },
@@ -23,16 +30,20 @@ const columns = [
 const ViewRides = () => {
   const [rides, setRides] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchedRide, setSearchedRide] = useState(null);
+  const [openSearchModal, setOpenSearchModal] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     fetchRides();
   }, []);
 
-
   const fetchRides = async () => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/GetAllRides`);
-      console.log(response)
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/GetAllRides`
+      );
+      console.log(response);
       if (response.data.success) {
         setRides(response.data.data);
       } else {
@@ -43,7 +54,68 @@ const ViewRides = () => {
     }
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
 
+  const handleSearchClick = async () => {
+    try {
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/getRidebyID/${searchQuery}`
+      );
+
+      console.log(response)
+      await createAuditLog({
+        userid: localStorage.getItem("userid"),
+        username: localStorage.getItem("username"),
+        userrole: localStorage.getItem("usertype"),
+        action: `Ride Searched ID: ${searchQuery}`,
+      });
+
+      setSearchedRide(response.data);
+      setOpenSearchModal(true);
+    } catch (error) {
+      console.error("Error fetching ride:", error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSearchedRide((prevRide) => ({
+      ...prevRide,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveClick = async () => {
+    try {
+      const response = await axios.put(
+        `http://${SERVER_IP}:3004/api/UpdateRide/${searchQuery}`,
+        searchedRide
+      );
+      console.log(response.data);
+
+      await createAuditLog({
+        userid: localStorage.getItem("userid"),
+        username: localStorage.getItem("username"),
+        userrole: localStorage.getItem("usertype"),
+        action: `Ride Updated ID: ${searchedRide.rideid}`,
+      });
+
+      setSnackbarOpen(true);
+      setOpenSearchModal(false);
+      fetchRides(); // Refresh ride list
+    } catch (error) {
+      console.error("Error updating ride:", error);
+    }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
 
   return (
     <div className="flex">
@@ -56,8 +128,15 @@ const ViewRides = () => {
               label="Search Rides"
               variant="outlined"
               fullWidth
+              value={searchQuery}
+              onChange={handleSearchChange}
             />
-            <SearchIcon sx={{ fontSize: 45, marginLeft: '.5rem', marginTop: '.25rem' }} />
+            <button
+              onClick={handleSearchClick}
+              className="ml-[.5rem] rounded-md flex items-center gap-[.5rem] hover:bg-customYellow hover:text-customLightBlue border-gray-400 justify-center"
+            >
+              <SearchIcon sx={{ fontSize: 45 }} />
+            </button>
           </div>
         </div>
         <Paper elevation={3}>
@@ -83,6 +162,110 @@ const ViewRides = () => {
             />
           </div>
         </Paper>
+
+        <Dialog
+          open={openSearchModal}
+          onClose={() => setOpenSearchModal(false)}
+          aria-labelledby="ride-dialog-title"
+        >
+          <DialogTitle
+            id="ride-dialog-title"
+            sx={{ height: "7rem", width: "30rem" }}
+          >
+            <p className="text-3xl font-bold">Ride Details</p>
+          </DialogTitle>
+          <DialogContent>
+            {searchedRide ? (
+              <div className="text-[1.3rem]">
+                <TextField
+                  label="Ride ID"
+                  name="rideid"
+                  value={searchedRide.rideid}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Booker ID"
+                  name="bookerid"
+                  value={searchedRide.bookerid}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Rider ID"
+                  name="riderid"
+                  value={searchedRide.riderid}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Origin"
+                  name="origin"
+                  value={searchedRide.origin}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Destination"
+                  name="destination"
+                  value={searchedRide.destination}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Time"
+                  name="time"
+                  value={searchedRide.time}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Ride Total"
+                  name="ridetotal"
+                  value={searchedRide.ridetotal}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+              </div>
+            ) : (
+              <p>No ride details available.</p>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleSaveClick}
+              color="primary"
+              variant="contained"
+            >
+              Save
+            </Button>
+            <Button onClick={() => setOpenSearchModal(false)} color="secondary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+        >
+          <Alert
+            onClose={handleSnackbarClose}
+            severity="success"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            Ride details updated successfully!
+          </Alert>
+        </Snackbar>
       </div>
     </div>
   );

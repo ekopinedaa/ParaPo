@@ -15,8 +15,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios"; // Import Axios
 import createAuditLog from "../utils/Auditlogger";
 import { DataGrid } from "@mui/x-data-grid";
-import { SERVER_IP } from '../../config';
-
+import { SERVER_IP } from "../../config";
 
 const columns = [
   { field: "userid", headerName: "User ID", width: 130 },
@@ -43,7 +42,9 @@ const ViewUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/getAllUsers`);
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/getAllUsers`
+      );
       setUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -56,14 +57,17 @@ const ViewUsers = () => {
 
   const handleSearchClick = async () => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/getUserById/${searchInput}`);
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/getUserById/${searchInput}`
+      );
+      console.log(response)
 
       await createAuditLog({
         userid: localStorage.getItem("userid"),
         username: localStorage.getItem("username"),
         userrole: localStorage.getItem("usertype"),
-        action: `User Searched ID: ${searchInput}`
-      })
+        action: `User Searched ID: ${searchInput}`,
+      });
       setSearchedUser(response.data);
       setOpenSearchModal(true);
     } catch (error) {
@@ -76,6 +80,37 @@ const ViewUsers = () => {
       return;
     }
     setSnackbarOpen(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSearchedUser((prevUser) => ({
+      ...prevUser,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveClick = async () => {
+    try {
+      const response = await axios.put(
+        `http://${SERVER_IP}:3004/api/UpdateUser/${searchedUser.userid}`,
+        searchedUser
+      );
+      console.log(response.data);
+
+      await createAuditLog({
+        userid: localStorage.getItem("userid"),
+        username: localStorage.getItem("username"),
+        userrole: localStorage.getItem("usertype"),
+        action: `User Updated ID: ${searchedUser.userid}`,
+      });
+
+      setSnackbarOpen(true);
+      setOpenSearchModal(false);
+      fetchUsers(); // Refresh user list
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
   };
 
   return (
@@ -113,11 +148,11 @@ const ViewUsers = () => {
               pageSizeOptions={[10, 15]}
               getRowId={(row) => row.userid}
               sx={{
-                '& .MuiDataGrid-columnHeaders': {
-                  backgroundColor: '#f5f5f5',
+                "& .MuiDataGrid-columnHeaders": {
+                  backgroundColor: "#f5f5f5",
                 },
-                '& .MuiDataGrid-columnHeaderTitle': {
-                  fontWeight: 'bold',
+                "& .MuiDataGrid-columnHeaderTitle": {
+                  fontWeight: "bold",
                 },
               }}
             />
@@ -128,25 +163,89 @@ const ViewUsers = () => {
           onClose={() => setOpenSearchModal(false)}
           aria-labelledby="user-dialog-title"
         >
-          <DialogTitle id="user-dialog-title" sx={{height: "7rem", width: "30rem"}}><p className="text-3xl font-bold">User Details</p></DialogTitle>
+          <DialogTitle
+            id="user-dialog-title"
+            sx={{ height: "7rem", width: "30rem" }}
+          >
+            <p className="text-3xl font-bold">User Details</p>
+          </DialogTitle>
           <DialogContent>
             {searchedUser ? (
               <div className="text-[1.3rem]">
-                <p><strong>User ID:</strong> {searchedUser.userid}</p>
-                <p><strong>Username:</strong> {searchedUser.username}</p>
-                <p><strong>Password:</strong> {searchedUser.password}</p>
-                <p><strong>First Name:</strong> {searchedUser.firstname}</p>
-                <p><strong>Last Name:</strong> {searchedUser.lastname}</p>
-                <p><strong>Contact No:</strong> {searchedUser.contactno}</p>
-                <p><strong>Account No:</strong> {searchedUser.accountno}</p>
-                <p><strong>User Type:</strong> {searchedUser.usertype}</p>
+                <TextField
+                  label="User ID"
+                  name="userid"
+                  value={searchedUser.userid}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Username"
+                  name="username"
+                  value={searchedUser.username}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Password"
+                  name="password"
+                  value={searchedUser.password}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="First Name"
+                  name="firstname"
+                  value={searchedUser.firstname}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Last Name"
+                  name="lastname"
+                  value={searchedUser.lastname}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Contact No"
+                  name="contactno"
+                  value={searchedUser.contactno}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Account No"
+                  name="accountno"
+                  value={searchedUser.accountno}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="User Type"
+                  name="usertype"
+                  value={searchedUser.usertype}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
               </div>
             ) : (
               <p>No user details available.</p>
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenSearchModal(false)} color="primary">
+          <Button onClick={handleSaveClick} color="primary" variant="contained">
+              Save
+            </Button>
+            <Button onClick={() => setOpenSearchModal(false)} color="secondary">
               Close
             </Button>
           </DialogActions>
