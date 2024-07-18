@@ -3,6 +3,7 @@ import { Button, TextField, Box, FormControl, InputLabel, Select, MenuItem } fro
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'; // Import axios or your preferred HTTP client
 import backgroundImage from '../rsc/finallandingpage.png'
+import createAuditLog from "../utils/Auditlogger";
 import { SERVER_IP } from '../../config';
 
 const Signup = () => {
@@ -34,11 +35,17 @@ const Signup = () => {
         e.preventDefault();
         try {
             await axios.post(`http://${SERVER_IP}:3004/api/createUser`, formData);
+
+            await createAuditLog({
+                userid: null,
+                username: formData.username,
+                userrole: formData.usertype,
+                action: "Account Register"
+              })
             navigate('/')
             console.log('User created successfully');
         } catch (error) {
             console.error('Error creating user:', error.message);
-            // Handle error state or display an error message
         }
     };
 

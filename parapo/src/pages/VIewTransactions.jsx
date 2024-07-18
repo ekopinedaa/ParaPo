@@ -14,6 +14,7 @@ import AdminSidebar from "../components/AdminSidebar";
 import SearchIcon from "@mui/icons-material/Search";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import axios from "axios"; // Import Axios
+import createAuditLog from "../utils/Auditlogger";
 import { DataGrid } from "@mui/x-data-grid";
 import { SERVER_IP } from "../../config";
 
@@ -59,10 +60,19 @@ const VIewTransactions = () => {
       );
 
       if (response.data.success) {
+
+
         console.log("Extra charge updated successfully:", response.data.data);
         localStorage.setItem("extraCharge", newAmount);
         setXtraChargeStorage(newAmount);
         setSnackbarOpen(true);
+
+        await createAuditLog({
+          userid: localStorage.getItem("userid"),
+          username: localStorage.getItem("username"),
+          userrole: localStorage.getItem("usertype"),
+          action: `Extra Charge Changed to ${newAmount}`
+        })
       } else {
         console.error("Failed to update extra charge:", response.data.message);
       }
@@ -122,6 +132,14 @@ const VIewTransactions = () => {
         `http://${SERVER_IP}:3004/api/getTransactionById/${searchInput}`
       );
       if (response.data.success) {
+
+        await createAuditLog({
+          userid: localStorage.getItem("userid"),
+          username: localStorage.getItem("username"),
+          userrole: localStorage.getItem("usertype"),
+          action: `Transaction Search ID: ${searchInput}`
+        })
+
         setSearchedTransaction(response.data.data);
         setOpenSearchModal(true);
       } else {

@@ -260,10 +260,8 @@ const PasaheroDashboard = () => {
       setAmount("");
       fetchRideRequests();
 
-      const parsedUserId = parseInt(userid, 10)
-
       await createAuditLog({
-        userid: parsedUserId,
+        userid: userid,
         username: username,
         userrole: usertype,
         action: "Requested A Ride"
@@ -310,6 +308,14 @@ const PasaheroDashboard = () => {
 
 
       fetchRideRequests();
+
+      //audit log
+      await createAuditLog({
+        userid: userid,
+        username: username,
+        userrole: usertype,
+        action: "Ride pay"
+      })
     } catch (error) {
       console.error("Error fetching rider account number:", error);
       setErrorSnackbarMessage("Failed to fetch rider account number.");

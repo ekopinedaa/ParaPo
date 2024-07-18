@@ -33,10 +33,10 @@ const AuditLogController = {
 
     // Read a specific audit log entry by ID
     getAuditLogById: async (req, res) => {
-        const { id } = req.params;
+        const { auditlogid } = req.params;
 
         try {
-            const auditLog = await AuditLogModel.findById(id);
+            const auditLog = await AuditLogModel.findById(auditlogid);
             if (!auditLog) {
                 return res.status(404).json({ error: 'Audit log entry not found' });
             }

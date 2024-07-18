@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import axios from "axios"; // Import Axios
+import createAuditLog from "../utils/Auditlogger";
 import { SERVER_IP } from '../../config';
 
 const UpdateAccount = () => {
@@ -75,7 +76,13 @@ const UpdateAccount = () => {
       localStorage.setItem("accountno", accountno);
       localStorage.setItem("username", username);
       localStorage.setItem("password", password)
-
+     
+      await createAuditLog({
+        userid: userid,
+        username: username,
+        userrole: usertype,
+        action: "Update account"
+      })
 
       if (usertype == "pasahero") {
         navigate("/pasahero")

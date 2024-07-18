@@ -13,6 +13,7 @@ import {
 import AdminSidebar from "../components/AdminSidebar";
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios"; // Import Axios
+import createAuditLog from "../utils/Auditlogger";
 import { DataGrid } from "@mui/x-data-grid";
 import { SERVER_IP } from '../../config';
 
@@ -56,6 +57,13 @@ const ViewUsers = () => {
   const handleSearchClick = async () => {
     try {
       const response = await axios.get(`http://${SERVER_IP}:3004/api/getUserById/${searchInput}`);
+
+      await createAuditLog({
+        userid: localStorage.getItem("userid"),
+        username: localStorage.getItem("username"),
+        userrole: localStorage.getItem("usertype"),
+        action: `User Searched ID: ${searchInput}`
+      })
       setSearchedUser(response.data);
       setOpenSearchModal(true);
     } catch (error) {

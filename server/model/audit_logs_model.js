@@ -8,11 +8,9 @@ const AuditLogSchema = new mongoose.Schema({
     },
     userid: {
         type: Number,
-        required: true
     },
     username: {
         type: String,
-        required: true
     },
     userrole: {
         type: String

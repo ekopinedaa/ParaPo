@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { Close as CloseIcon } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
+import createAuditLog from "../utils/Auditlogger";
 import { SERVER_IP } from '../../config';
 
 const RiderDashboard = () => {
@@ -128,6 +129,13 @@ const RiderDashboard = () => {
         }
       );
       // Refresh the ride requests after updating
+
+      await createAuditLog({
+        userid: null,
+        username: username,
+        userrole: "rider",
+        action: "Accept Ride"
+      })
 
       fetchRideRequests();
     } catch (error) {

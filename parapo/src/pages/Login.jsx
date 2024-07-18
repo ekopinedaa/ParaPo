@@ -4,6 +4,7 @@ import backgroundImage from '../rsc/finallandingpage.png';
 import { Link, Navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import createAuditLog from "../utils/Auditlogger";
 import { SERVER_IP } from '../../config';
 
 const Login = () => {
@@ -18,13 +19,10 @@ const Login = () => {
       const response = await axios.post(`http://${SERVER_IP}:3004/api/login`, {
         username,
         password
-      });
+      }); 
 
-      
-
-      // Assuming the response.data contains user information including usertype
-      const { data } = response; // Destructure the response to get data object
-      const { userData } = data; // Destructure userData from data
+      const { data } = response; 
+      const { userData } = data;
 
       // Store user data in local storage
       Object.keys(userData).forEach(key => {
@@ -34,16 +32,53 @@ const Login = () => {
       // Extract usertype from userData
       const { usertype } = userData;
 
+
+
       // Navigate based on usertype
       if (usertype === 'rider') {
+        await createAuditLog({
+          userid: null,
+          username: username,
+          userrole: usertype,
+          action: "Login"
+        })
+
         navigate('/rider');
       } else if (usertype === 'pasahero') {
+        await createAuditLog({
+          userid: null,
+          username: username,
+          userrole: usertype,
+          action: "Login"
+        })
+
         navigate('/pasahero');
       } else if (usertype === 'admin') {
+        await createAuditLog({
+          userid: null,
+          username: username,
+          userrole: usertype,
+          action: "Login"
+        })
+
         navigate('/admin');
       } else if (usertype === 'accounting') {
+        await createAuditLog({
+          userid: null,
+          username: username,
+          userrole: usertype,
+          action: "Login"
+        })
+
         navigate('/accounting');
       } else {
+        await createAuditLog({
+          userid: null,
+          username: username,
+          userrole: usertype,
+          action: "Invalid Login Attempt"
+        })
+
         alert('Invalid usertype returned from server.');
       }
     } catch (error) {

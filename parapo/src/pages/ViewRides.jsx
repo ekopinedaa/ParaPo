@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Paper,
-  Button,
 } from "@mui/material";
 import AdminSidebar from "../components/AdminSidebar";
 import SearchIcon from '@mui/icons-material/Search';
 import axios from "axios"; // Import Axios
+import createAuditLog from "../utils/Auditlogger";
 import { DataGrid } from "@mui/x-data-grid";
 import { SERVER_IP } from '../../config';
 
