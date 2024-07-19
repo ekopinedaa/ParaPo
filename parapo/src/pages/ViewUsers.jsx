@@ -32,7 +32,16 @@ const columns = [
 const ViewUsers = () => {
   const [users, setUsers] = useState([]);
   const [searchInput, setSearchInput] = useState("");
-  const [searchedUser, setSearchedUser] = useState(null);
+  const [searchedUser, setSearchedUser] = useState({
+    userid: '',
+    username: '',
+    password: '',
+    firstname: '',
+    lastname: '',
+    contactno: '',
+    accountno: '',
+    usertype: ''
+  });
   const [openSearchModal, setOpenSearchModal] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
@@ -60,20 +69,34 @@ const ViewUsers = () => {
       const response = await axios.get(
         `http://${SERVER_IP}:3004/api/getUserById/${searchInput}`
       );
-      console.log(response)
-
+      console.log(response.data);
+  
+      // Transform data if necessary
+      const userData = {
+        userid: response.data.userid ?? '',
+        username: response.data.username ?? '',
+        password: response.data.password ?? '',
+        firstname: response.data.firstname ?? '',
+        lastname: response.data.lastname ?? '',
+        contactno: response.data.contactno ?? '',
+        accountno: response.data.accountno ?? '',
+        usertype: response.data.usertype ?? ''
+      };
+  
       await createAuditLog({
         userid: localStorage.getItem("userid"),
         username: localStorage.getItem("username"),
         userrole: localStorage.getItem("usertype"),
         action: `User Searched ID: ${searchInput}`,
       });
-      setSearchedUser(response.data);
+      
+      setSearchedUser(userData);
       setOpenSearchModal(true);
     } catch (error) {
       console.error("Error fetching user:", error);
     }
   };
+
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -171,78 +194,83 @@ const ViewUsers = () => {
           </DialogTitle>
           <DialogContent>
             {searchedUser ? (
-              <div className="text-[1.3rem]">
-                <TextField
-                  label="User ID"
-                  name="userid"
-                  value={searchedUser.userid}
-                  onChange={handleInputChange}
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="Username"
-                  name="username"
-                  value={searchedUser.username}
-                  onChange={handleInputChange}
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="Password"
-                  name="password"
-                  value={searchedUser.password}
-                  onChange={handleInputChange}
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="First Name"
-                  name="firstname"
-                  value={searchedUser.firstname}
-                  onChange={handleInputChange}
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="Last Name"
-                  name="lastname"
-                  value={searchedUser.lastname}
-                  onChange={handleInputChange}
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="Contact No"
-                  name="contactno"
-                  value={searchedUser.contactno}
-                  onChange={handleInputChange}
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="Account No"
-                  name="accountno"
-                  value={searchedUser.accountno}
-                  onChange={handleInputChange}
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="User Type"
-                  name="usertype"
-                  value={searchedUser.usertype}
-                  onChange={handleInputChange}
-                  fullWidth
-                  margin="normal"
-                />
-              </div>
+              <>
+                <div className="text-[1.3rem]">
+                  <TextField
+                    label="User ID"
+                    name="userid"
+                    value={searchedUser.userid ?? ''}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                  <TextField
+                    label="Username"
+                    name="username"
+                    value={searchedUser.username ?? ''}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="Password"
+                    name="password"
+                    value={searchedUser.password ?? ''}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="First Name"
+                    name="firstname"
+                    value={searchedUser.firstname ?? ''}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="Last Name"
+                    name="lastname"
+                    value={searchedUser.lastname ?? ''}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="Contact No"
+                    name="contactno"
+                    value={searchedUser.contactno ?? ''}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="Account No"
+                    name="accountno"
+                    value={searchedUser.accountno ?? ''}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="User Type"
+                    name="usertype"
+                    value={searchedUser.usertype ?? ''}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                </div>
+              </>
             ) : (
               <p>No user details available.</p>
             )}
           </DialogContent>
           <DialogActions>
-          <Button onClick={handleSaveClick} color="primary" variant="contained">
+            <Button onClick={handleSaveClick} color="primary" variant="contained">
               Save
             </Button>
             <Button onClick={() => setOpenSearchModal(false)} color="secondary">
@@ -262,7 +290,7 @@ const ViewUsers = () => {
             variant="filled"
             sx={{ width: "100%" }}
           >
-            User details fetched successfully!
+            User details Updated Successfully!
           </Alert>
         </Snackbar>
       </div>

@@ -30,13 +30,25 @@ const columns = [
 const ViewRides = () => {
   const [rides, setRides] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchedRide, setSearchedRide] = useState(null);
+  const [searchedRide, setSearchedRide] = useState({
+    rideid: '',
+    bookerid: '',
+    riderid: '',
+    origin: '',
+    destination: '',
+    time: '',
+    ridetotal: ''
+  });
   const [openSearchModal, setOpenSearchModal] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     fetchRides();
   }, []);
+
+  useEffect(() => {
+    console.log("searchedRide state updated:", searchedRide);
+  }, [searchedRide]);
 
   const fetchRides = async () => {
     try {
@@ -60,11 +72,12 @@ const ViewRides = () => {
 
   const handleSearchClick = async () => {
     try {
+      console.log("Searching for ride with ID:", searchQuery);
       const response = await axios.get(
         `http://${SERVER_IP}:3004/api/getRidebyID/${searchQuery}`
       );
+      console.log("API Response:", response.data);
 
-      console.log(response)
       await createAuditLog({
         userid: localStorage.getItem("userid"),
         username: localStorage.getItem("username"),
@@ -72,7 +85,10 @@ const ViewRides = () => {
         action: `Ride Searched ID: ${searchQuery}`,
       });
 
-      setSearchedRide(response.data);
+      // Ensure we're setting the state with the correct data structure
+      const rideData = response.data.data || response.data;
+      setSearchedRide(rideData);
+      console.log("Updated searchedRide state:", rideData);
       setOpenSearchModal(true);
     } catch (error) {
       console.error("Error fetching ride:", error);
@@ -164,9 +180,10 @@ const ViewRides = () => {
         </Paper>
 
         <Dialog
-          open={openSearchModal}
-          onClose={() => setOpenSearchModal(false)}
-          aria-labelledby="ride-dialog-title"
+            key={searchedRide ? searchedRide.rideid : 'empty'}
+            open={openSearchModal}
+            onClose={() => setOpenSearchModal(false)}
+            aria-labelledby="ride-dialog-title"
         >
           <DialogTitle
             id="ride-dialog-title"
@@ -175,36 +192,47 @@ const ViewRides = () => {
             <p className="text-3xl font-bold">Ride Details</p>
           </DialogTitle>
           <DialogContent>
+            {console.log("Rendering DialogContent, searchedRide:", searchedRide)}
             {searchedRide ? (
               <div className="text-[1.3rem]">
+                {console.log("Rendering TextFields")}
                 <TextField
                   label="Ride ID"
                   name="rideid"
-                  value={searchedRide.rideid}
+                  value={searchedRide.rideid ?? ''}
                   onChange={handleInputChange}
                   fullWidth
                   margin="normal"
+                  InputProps={{
+                    readOnly: true,
+                  }}
                 />
                 <TextField
                   label="Booker ID"
                   name="bookerid"
-                  value={searchedRide.bookerid}
+                  value={searchedRide.bookerid ?? ''}
                   onChange={handleInputChange}
                   fullWidth
                   margin="normal"
+                  InputProps={{
+                    readOnly: true,
+                  }}
                 />
                 <TextField
                   label="Rider ID"
                   name="riderid"
-                  value={searchedRide.riderid}
+                  value={searchedRide.riderid ?? ''}
                   onChange={handleInputChange}
                   fullWidth
                   margin="normal"
+                  InputProps={{
+                    readOnly: true,
+                  }}
                 />
                 <TextField
                   label="Origin"
                   name="origin"
-                  value={searchedRide.origin}
+                  value={searchedRide.origin ?? ''}
                   onChange={handleInputChange}
                   fullWidth
                   margin="normal"
@@ -212,7 +240,7 @@ const ViewRides = () => {
                 <TextField
                   label="Destination"
                   name="destination"
-                  value={searchedRide.destination}
+                  value={searchedRide.destination ?? ''}
                   onChange={handleInputChange}
                   fullWidth
                   margin="normal"
@@ -220,7 +248,7 @@ const ViewRides = () => {
                 <TextField
                   label="Time"
                   name="time"
-                  value={searchedRide.time}
+                  value={searchedRide.time ?? ''}
                   onChange={handleInputChange}
                   fullWidth
                   margin="normal"
@@ -228,10 +256,13 @@ const ViewRides = () => {
                 <TextField
                   label="Ride Total"
                   name="ridetotal"
-                  value={searchedRide.ridetotal}
+                  value={searchedRide.ridetotal ?? ''}
                   onChange={handleInputChange}
                   fullWidth
                   margin="normal"
+                  InputProps={{
+                    readOnly: true,
+                  }}
                 />
               </div>
             ) : (

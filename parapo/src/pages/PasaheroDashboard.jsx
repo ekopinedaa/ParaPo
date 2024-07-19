@@ -34,7 +34,7 @@ const PasaheroDashboard = () => {
   const [accountno, setAccountno] = useState();
   const [location, setLocation] = useState("");
   const [destination, setDestination] = useState("");
-  const [usertype,setUsertype] = useState("")
+  const [usertype, setUsertype] = useState("")
   const [amount, setAmount] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Success Snackbar
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Success Snackbar message
@@ -42,16 +42,22 @@ const PasaheroDashboard = () => {
   const [errorSnackbarMessage, setErrorSnackbarMessage] = useState(""); // Error Snackbar message
   const [rideRequests, setRideRequests] = useState([]);
   const [rideHistory, setRideHistory] = useState([]);
+  // const [extraCharge, setExtraCharge] = useState();
+
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     const storedAccountno = localStorage.getItem("accountno");
     const storedUserId = localStorage.getItem("userid");
     const storedUsertype = localStorage.getItem("usertype");
+    const xxtraCharge = fetchExtraCharge();
+
     setUsertype(storedUsertype);
     setUsername(storedUsername);
     setAccountno(storedAccountno);
     setUserid(storedUserId);
+    // setExtraCharge(xxtraCharge)
+    // console.log(extraCharge)
 
     fetchRideRequests();
     fetchRideHistory();
@@ -151,6 +157,24 @@ const PasaheroDashboard = () => {
     { field: "time", headerName: "Time", width: 150 },
     { field: "ridetotal", headerName: "Total", width: 150 },
   ];
+  const fetchExtraCharge = async () => {
+    try {
+      const response = await axios.get(`http://${SERVER_IP}:3004/api/getECID/1`);
+      console.log('API response:', response.data);
+
+      if (response.data && response.data.success && response.data.data) {
+        const amount = response.data.data.amount;
+        console.log(amount)
+        return amount;
+      } else {
+        console.error('Unexpected data structure:', response.data);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching extra charge:', error);
+      return null;
+    }
+  };
 
   const fetchRideHistory = async () => {
     try {
@@ -271,8 +295,12 @@ const PasaheroDashboard = () => {
     }
   };
 
+
+
   const handlePayRide = async (ride) => {
     try {
+      const token = "$2b$10$..IFvK3ioe5X/JPz3Pl2rO7KG4bDK8/8f/WnNgI56JqGfukoaUP7G"
+
       const UserResponse = await axios.get(
         `http://${SERVER_IP}:3004/api/getUserById/${ride.riderid}`
       );
@@ -294,6 +322,70 @@ const PasaheroDashboard = () => {
 
       console.log("Ride added:", RideResponse.data);
 
+
+      // Proceed with the payment logic
+      const extraCharge = await fetchExtraCharge();
+
+      const PTR = Number(ride.rideprice) - Number(extraCharge);
+      const PTP = Number(extraCharge);
+
+      const PayingToRider = Math.round(PTR);
+      const PayingToParaPo = Math.round(PTP);
+
+      const payToRider = {
+        debitAccount: String(accountno),
+        creditAccount: String(riderAccountNo),
+        amount: PayingToRider
+      }
+
+      const res = await axios.post(`http://192.168.10.14:3001/api/unionbank/transfertransaction`, payToRider, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      const PayTransR = await axios.post(`http://${SERVER_IP}:3004/api/createTransaction`,{
+        fromid: userid,
+        toid: ride.riderid,
+        fromaccno: accountno,
+        toaccno:riderAccountNo,
+        amount: PayingToRider
+      });
+
+
+      const payToParapo = {
+        debitAccount: String(accountno),
+        creditAccount: "000000035",
+        amount: PayingToParaPo
+      }
+
+      const value = await axios.post(`http://192.168.10.14:3001/api/unionbank/transfertransaction`, payToParapo, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      const PayTransP = await axios.post(`http://${SERVER_IP}:3004/api/createTransaction`,{
+        fromid: userid,
+        toid: 900000000,
+        fromaccno: accountno,
+        toaccno:"000000035",
+        amount: PayingToParaPo
+      });
+
+
+      console.log("accountno:", accountno);
+      console.log("riderAccountNo:", riderAccountNo);
+
+
+      //audit log
+      await createAuditLog({
+        userid: userid,
+        username: username,
+        userrole: usertype,
+        action: "Ride pay"
+      })
+
       // Delete the ride request from the table
       console.log(ride.id)
       const deleteResponse = await axios.delete(
@@ -303,19 +395,9 @@ const PasaheroDashboard = () => {
 
       setSnackbarMessage("Your payment has been Charged and Recorded. Thank you for choosing ParaPo");
       setSnackbarOpen(true);
-
-      // Proceed with the payment logic
-
-
+      
       fetchRideRequests();
 
-      //audit log
-      await createAuditLog({
-        userid: userid,
-        username: username,
-        userrole: usertype,
-        action: "Ride pay"
-      })
     } catch (error) {
       console.error("Error fetching rider account number:", error);
       setErrorSnackbarMessage("Failed to fetch rider account number.");
@@ -493,7 +575,7 @@ const PasaheroDashboard = () => {
       </div>
 
       <div className="p-8">
-      <div className="mb-8">
+        <div className="mb-8">
           <h3 className="text-xl font-bold mb-4 flex justify-center mb-[3rem]">Ride History</h3>
           <div className="w-full flex align-center items-center justify-center">
             <Paper elevation={3}>
