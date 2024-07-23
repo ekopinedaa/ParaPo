@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Button,
   TextField,
   Box,
   IconButton,
@@ -17,21 +16,30 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import axios from "axios"; // Import Axios
 import createAuditLog from "../utils/Auditlogger";
-import { SERVER_IP } from '../../config';
+import { SERVER_IP } from "../../config";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const UpdateAccount = () => {
   const navigate = useNavigate();
-  const [openDrawer, setOpenDrawer] = useState(false);
   const [userid, setUserid] = useState("");
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
-  const [contactno, setContactno] = useState("")
-  const [accountno, setAccountno] = useState("")
+  const [contactno, setContactno] = useState("");
+  const [accountno, setAccountno] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [usertype, setUsertype] = useState("");
   const [usernamedisplay, setUsernamdisplay] = useState("");
-
 
   useEffect(() => {
     const storedUserid = localStorage.getItem("userid");
@@ -44,7 +52,9 @@ const UpdateAccount = () => {
 
   const fetchUserDetails = async (userid) => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/getUserById/${userid}`);
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/getUserById/${userid}`
+      );
       const userData = response.data;
       setFirstName(userData.firstname);
       setLastName(userData.lastname);
@@ -59,14 +69,17 @@ const UpdateAccount = () => {
 
   const handleUpdate = async () => {
     try {
-      const response = await axios.put(`http://${SERVER_IP}:3004/api/UpdateUser/${userid}`, {
-        firstname,
-        lastname,
-        contactno,
-        accountno,
-        username,
-        password,
-      });
+      const response = await axios.put(
+        `http://${SERVER_IP}:3004/api/UpdateUser/${userid}`,
+        {
+          firstname,
+          lastname,
+          contactno,
+          accountno,
+          username,
+          password,
+        }
+      );
       // Handle response and show success message or redirect
       console.log("Profile updated successfully:", response.data);
 
@@ -75,73 +88,59 @@ const UpdateAccount = () => {
       localStorage.setItem("contactno", contactno);
       localStorage.setItem("accountno", accountno);
       localStorage.setItem("username", username);
-      localStorage.setItem("password", password)
-     
+      localStorage.setItem("password", password);
+
       await createAuditLog({
         userid: userid,
         username: username,
         userrole: usertype,
-        action: "Update account"
-      })
+        action: "Update account",
+      });
 
       if (usertype == "pasahero") {
-        navigate("/pasahero")
-      }
-      else if (usertype == "rider") {
+        navigate("/pasahero");
+      } else if (usertype == "rider") {
         navigate("/rider");
       }
-
     } catch (error) {
       console.error("Error updating profile:", error);
     }
   };
 
-  const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-    setOpenDrawer(open);
-  };
-
-  const drawerContent = (
-    <Box
-      sx={{ width: 250 }}
-      role="presentation"
-      onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
-    >
-      <List>
-        <ListItem button onClick={() => navigate(-1)}>
-          <ListItemText primary="Go Back" />
-        </ListItem>
-      </List>
-      <Divider />
-      <List>
-        <ListItem button onClick={() => navigate("/")}>
-          <ListItemIcon>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
-        </ListItem>
-      </List>
-    </Box>
-  );
-
   return (
     <div className="w-screen h-screen">
-      <div className="bg-customBlue top-0 w-full h-[7rem] flex items-center text-customWhite">
+      <div className="bg-[#0c356a] top-0 w-full h-[7rem] flex items-center text-[#ffffff]">
         <div className="p-8 justify-start">
           <h1 className="text-roboto text-2xl font-bold flex">
             Welcome {usernamedisplay}! Care to Book a Ride?
           </h1>
         </div>
         <div className="p-8 absolute right-0 items-center">
-          <IconButton onClick={toggleDrawer(true)}>
-            <MenuIcon className="text-customWhite" />
-          </IconButton>
+          <Sheet>
+            <SheetTrigger asChild>
+              <IconButton>
+                <MenuIcon className="text-[#ffffff]" />
+              </IconButton>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="p-4">
+                <List>
+                  <ListItem button onClick={() => navigate(-1)}>
+                    <ListItemText primary="Go Back" />
+                  </ListItem>
+                  <ListItem button onClick={() => navigate("/")}>
+                    <ListItemIcon>
+                      <LogoutIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Logout" />
+                  </ListItem>
+                </List>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
       <div
@@ -262,10 +261,6 @@ const UpdateAccount = () => {
           </div>
         </div>
       </div>
-
-      <Drawer anchor="right" open={openDrawer} onClose={toggleDrawer(false)}>
-        {drawerContent}
-      </Drawer>
     </div>
   );
 };

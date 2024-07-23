@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
-  Button,
   TextField,
   Paper,
   Box,
-  Drawer,
   List,
   ListItem,
   ListItemIcon,
@@ -19,11 +17,31 @@ import { Close as CloseIcon } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import createAuditLog from "../utils/Auditlogger";
-import { SERVER_IP } from '../../config';
+import { SERVER_IP } from "../../config";
+import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const RiderDashboard = () => {
   const navigate = useNavigate();
-  const [openDrawer, setOpenDrawer] = useState(false);
   const [price, setPrice] = useState("");
   const [username, setUsername] = useState("");
   const [total, setTotal] = useState("");
@@ -35,7 +53,7 @@ const RiderDashboard = () => {
     const storedUsername = localStorage.getItem("username");
     const storedExtraCharge = localStorage.getItem("extraCharge");
     setUsername(storedUsername);
-    setExtraCharge(storedExtraCharge)
+    setExtraCharge(storedExtraCharge);
 
     fetchRideRequests();
     fetchExtraCharge();
@@ -69,7 +87,6 @@ const RiderDashboard = () => {
       width: 230,
       renderCell: (params) => (
         <Button
-          variant="contained"
           color="primary"
           onClick={() => handleAcceptRide(params.row)}
           disabled={params.row.confirmation !== "pending"}
@@ -134,8 +151,8 @@ const RiderDashboard = () => {
         userid: null,
         username: username,
         userrole: "rider",
-        action: "Accept Ride"
-      })
+        action: "Accept Ride",
+      });
 
       fetchRideRequests();
     } catch (error) {
@@ -204,7 +221,9 @@ const RiderDashboard = () => {
 
   const fetchRideHistory = async () => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/GetAllRides`);
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/GetAllRides`
+      );
       const riderUserId = localStorage.getItem("userid");
 
       let ridesData = response.data;
@@ -231,7 +250,7 @@ const RiderDashboard = () => {
         origin: ride.origin,
         destination: ride.destination,
         time: ride.time,
-        ridetotal: ride.ridetotal
+        ridetotal: ride.ridetotal,
       }));
 
       setRideHistory(formattedHistory);
@@ -241,63 +260,48 @@ const RiderDashboard = () => {
     }
   };
 
-  const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-    setOpenDrawer(open);
-  };
-
-  const drawerContent = (
-    <Box
-      sx={{ width: 250 }}
-      role="presentation"
-      onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
-    >
-      <List>
-        <ListItem button onClick={() => navigate("/UpdateAccount")}>
-          <ListItemText primary="Update Profile" />
-        </ListItem>
-      </List>
-      <Divider />
-      <List>
-        <ListItem button onClick={() => navigate("/")}>
-          <ListItemIcon>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
-        </ListItem>
-      </List>
-    </Box>
-  );
-
   return (
     <div className="w-screen">
-      <div className="bg-customBlue top-0 w-full h-[7rem] flex items-center text-customWhite">
+      <div className="bg-[#0c356a] top-0 w-full h-[7rem] flex items-center text-[#ffffff]">
         <div className="p-8 justify-start">
           <h1 className="text-roboto text-2xl font-bold flex">
             Welcome {username}! Ready to Start your day?
           </h1>
         </div>
         <div className="p-8 absolute right-0 items-center">
-          <IconButton onClick={toggleDrawer(true)}>
-            <MenuIcon className="text-customWhite" />
-          </IconButton>
+          <Sheet>
+            <SheetTrigger asChild>
+              <IconButton>
+                <MenuIcon className="text-[#ffffff]" />
+              </IconButton>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="p-4">
+                <List>
+                  <ListItem button onClick={() => navigate("/UpdateAccount")}>
+                    <ListItemText primary="Update Profile" />
+                  </ListItem>
+                  <ListItem button onClick={() => navigate("/")}>
+                    <ListItemIcon>
+                      <LogoutIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Logout" />
+                  </ListItem>
+                </List>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
-
-      <div
-        className="flex items-center bg-[#FF0CE] w-screen font-roboto"
-      >
+      <div className="flex items-center bg-[#FF0CE] w-screen font-roboto">
         <div className="h-full w-full flex flex-row justify-center">
-          <div className="h-[50rem] flex items-center">
+          <div className="h-[40rem] flex items-center">
             <Box
               sx={{
-                height: "45rem",
+                height: "34rem",
                 width: "115rem",
                 bgcolor: "rgba(255, 255, 255, 0.5)",
                 p: 4,
@@ -320,7 +324,7 @@ const RiderDashboard = () => {
                   The Extra Charge is: P{extraCharge}
                 </div>
               </div>
-              <div className="h-[30rem] w-full">
+              <div className="h-[23.2rem] w-full">
                 <DataGrid
                   rows={rideRequests}
                   columns={columns}
@@ -337,32 +341,46 @@ const RiderDashboard = () => {
         </div>
       </div>
 
-      <div className="p-8">
-        {/* Ride History */}
-        <div className="mb-8">
-          <h3 className="text-xl font-bold mb-4 flex justify-center mb-[3rem]">Ride History</h3>
-          <div className="w-full flex align-center items-center justify-center">
-            <Paper elevation={3}>
-              <DataGrid
-                rows={rideHistory}
-                columns={rideHistoryColumns}
-                initialState={{
-                  pagination: {
-                    paginationModel: { page: 0, pageSize: 5 },
-                  },
-                }}
-                pageSizeOptions={[5, 10]}
-                getRowId={(row) => row.rideid}
-              />
-            </Paper>
-          </div>
-        </div>
+      <div className="flex align-center justify-center mt-[5rem]">
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button variant="ghost">
+              <h1 className="text-2xl font-bold">View Ride History</h1>
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <div className="mx-auto w-full w-[80rem]">
+              <DrawerHeader>
+                <DrawerTitle><p className="text-4xl font-bold">Ride History</p></DrawerTitle>
+                <DrawerDescription>
+                  <p className="text-2xl">Your past rides are listed here.</p>
+                </DrawerDescription>
+              </DrawerHeader>
+              <div className="p-4">
+                <div style={{ height: 400, width: "100%"}}>
+                  <DataGrid
+                    rows={rideHistory}
+                    columns={rideHistoryColumns}
+                    initialState={{
+                      pagination: {
+                        paginationModel: { page: 0, pageSize: 5 },
+                      },
+                    }}
+                    pageSizeOptions={[5, 10]}
+                    getRowId={(row) => row.rideid}
+                    style={{ fontSize: "16px"}}
+                  />
+                </div>
+              </div>
+              <DrawerFooter>
+                <DrawerClose asChild>
+                  <Button variant="outline">Close</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </div>
+          </DrawerContent>
+        </Drawer>
       </div>
-
-      {/* Drawer */}
-      <Drawer anchor="right" open={openDrawer} onClose={toggleDrawer(false)}>
-        {drawerContent}
-      </Drawer>
     </div>
   );
 };

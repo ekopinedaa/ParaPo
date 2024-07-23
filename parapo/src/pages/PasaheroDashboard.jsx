@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
 import {
-  Button,
   TextField,
   Paper,
   Snackbar,
   Alert,
   Box,
   IconButton,
-  Drawer,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
@@ -25,16 +22,36 @@ import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import PaymentIcon from "@mui/icons-material/Payment";
 import createAuditLog from "../utils/Auditlogger";
 import { SERVER_IP } from "../../config";
+import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 const PasaheroDashboard = () => {
   const navigate = useNavigate();
-  const [openDrawer, setOpenDrawer] = useState(false);
   const [userid, setUserid] = useState();
   const [username, setUsername] = useState();
   const [accountno, setAccountno] = useState();
   const [location, setLocation] = useState("");
   const [destination, setDestination] = useState("");
-  const [usertype, setUsertype] = useState("")
+  const [usertype, setUsertype] = useState("");
   const [amount, setAmount] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Success Snackbar
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Success Snackbar message
@@ -43,7 +60,6 @@ const PasaheroDashboard = () => {
   const [rideRequests, setRideRequests] = useState([]);
   const [rideHistory, setRideHistory] = useState([]);
   // const [extraCharge, setExtraCharge] = useState();
-
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -137,7 +153,6 @@ const PasaheroDashboard = () => {
       width: 120,
       renderCell: (params) => (
         <Button
-          variant="contained"
           color="primary"
           onClick={() => handlePayRide(params.row)}
           disabled={params.row.confirmation !== "accepted"}
@@ -159,26 +174,30 @@ const PasaheroDashboard = () => {
   ];
   const fetchExtraCharge = async () => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/getECID/1`);
-      console.log('API response:', response.data);
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/getECID/1`
+      );
+      console.log("API response:", response.data);
 
       if (response.data && response.data.success && response.data.data) {
         const amount = response.data.data.amount;
-        console.log(amount)
+        console.log(amount);
         return amount;
       } else {
-        console.error('Unexpected data structure:', response.data);
+        console.error("Unexpected data structure:", response.data);
         return null;
       }
     } catch (error) {
-      console.error('Error fetching extra charge:', error);
+      console.error("Error fetching extra charge:", error);
       return null;
     }
   };
 
   const fetchRideHistory = async () => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3004/api/GetAllRides`);
+      const response = await axios.get(
+        `http://${SERVER_IP}:3004/api/GetAllRides`
+      );
       const bookerUserId = localStorage.getItem("userid");
 
       let ridesData = response.data;
@@ -205,7 +224,7 @@ const PasaheroDashboard = () => {
         origin: ride.origin,
         destination: ride.destination,
         time: ride.time,
-        ridetotal: ride.ridetotal
+        ridetotal: ride.ridetotal,
       }));
 
       setRideHistory(formattedHistory);
@@ -214,44 +233,6 @@ const PasaheroDashboard = () => {
       setRideHistory([]);
     }
   };
-
-
-  const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-    setOpenDrawer(open);
-  };
-
-  const drawerContent = (
-    <Box
-      sx={{ width: 250 }}
-      role="presentation"
-      onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
-    >
-      <List>
-        <ListItem button onClick={() => navigate("/UpdateAccount")}>
-          <ListItemText primary="Update Profile" />
-        </ListItem>
-        <ListItem button onClick={() => navigate("/OtherApplications")}>
-          <ListItemText primary="Other Apps" />
-        </ListItem>
-      </List>
-      <Divider />
-      <List>
-        <ListItem button onClick={() => navigate("/")}>
-          <ListItemIcon>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
-        </ListItem>
-      </List>
-    </Box>
-  );
 
   const handleRequestRide = async () => {
     // Check if any of the required fields are empty
@@ -291,18 +272,17 @@ const PasaheroDashboard = () => {
         userid: userid,
         username: username,
         userrole: usertype,
-        action: "Requested A Ride"
-      })
+        action: "Requested A Ride",
+      });
     } catch (error) {
       console.error("Error creating ride request:", error.message);
     }
   };
 
-
-
   const handlePayRide = async (ride) => {
     try {
-      const token = "$2b$10$..IFvK3ioe5X/JPz3Pl2rO7KG4bDK8/8f/WnNgI56JqGfukoaUP7G"
+      const token =
+        "$2b$10$..IFvK3ioe5X/JPz3Pl2rO7KG4bDK8/8f/WnNgI56JqGfukoaUP7G";
 
       const UserResponse = await axios.get(
         `http://${SERVER_IP}:3004/api/getUserById/${ride.riderid}`
@@ -325,7 +305,6 @@ const PasaheroDashboard = () => {
 
       console.log("Ride added:", RideResponse.data);
 
-
       // Proceed with the payment logic
       const extraCharge = await fetchExtraCharge();
 
@@ -338,69 +317,73 @@ const PasaheroDashboard = () => {
       const payToRider = {
         debitAccount: String(accountno),
         creditAccount: String(riderAccountNo),
-        amount: PayingToRider
-      }
+        amount: PayingToRider,
+      };
 
-      const res = await axios.post(`http://192.168.10.14:3001/api/unionbank/transfertransaction`, payToRider, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      // const res = await axios.post(`http://192.168.10.14:3001/api/unionbank/transfertransaction`, payToRider, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`
+      //   }
+      // })
+
+      const PayTransR = await axios.post(
+        `http://${SERVER_IP}:3004/api/createTransaction`,
+        {
+          fromid: userid,
+          toid: ride.riderid,
+          fromaccno: accountno,
+          toaccno: riderAccountNo,
+          amount: PayingToRider,
         }
-      })
-
-      const PayTransR = await axios.post(`http://${SERVER_IP}:3004/api/createTransaction`,{
-        fromid: userid,
-        toid: ride.riderid,
-        fromaccno: accountno,
-        toaccno:riderAccountNo,
-        amount: PayingToRider
-      });
-
+      );
 
       const payToParapo = {
         debitAccount: String(accountno),
         creditAccount: "000000035",
-        amount: PayingToParaPo
-      }
+        amount: PayingToParaPo,
+      };
 
-      const value = await axios.post(`http://192.168.10.14:3001/api/unionbank/transfertransaction`, payToParapo, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      // const value = await axios.post(`http://192.168.10.14:3001/api/unionbank/transfertransaction`, payToParapo, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`
+      //   }
+      // })
+
+      const PayTransP = await axios.post(
+        `http://${SERVER_IP}:3004/api/createTransaction`,
+        {
+          fromid: userid,
+          toid: 1,
+          fromaccno: accountno,
+          toaccno: "000000035",
+          amount: PayingToParaPo,
         }
-      })
-
-      const PayTransP = await axios.post(`http://${SERVER_IP}:3004/api/createTransaction`,{
-        fromid: userid,
-        toid: 1,
-        fromaccno: accountno,
-        toaccno:"000000035",
-        amount: PayingToParaPo
-      });
-
+      );
 
       console.log("accountno:", accountno);
       console.log("riderAccountNo:", riderAccountNo);
-
 
       //audit log
       await createAuditLog({
         userid: userid,
         username: username,
         userrole: usertype,
-        action: "Ride pay"
-      })
+        action: "Ride pay",
+      });
 
       // Delete the ride request from the table
-      console.log(ride.id)
+      console.log(ride.id);
       const deleteResponse = await axios.delete(
         `http://${SERVER_IP}:3004/api/DeleteRideRequest/${ride.id}`
       );
       console.log("Ride request deleted:", deleteResponse.data);
 
-      setSnackbarMessage("Your payment has been Charged and Recorded. Thank you for choosing ParaPo");
+      setSnackbarMessage(
+        "Your payment has been Charged and Recorded. Thank you for choosing ParaPo"
+      );
       setSnackbarOpen(true);
-      
-      fetchRideRequests();
 
+      fetchRideRequests();
     } catch (error) {
       console.error("Error fetching rider account number:", error);
       setErrorSnackbarMessage("Failed to fetch rider account number.");
@@ -418,16 +401,44 @@ const PasaheroDashboard = () => {
 
   return (
     <div className="w-screen">
-      <div className="bg-customBlue top-0 w-full h-[7rem] flex items-center text-customWhite">
+      <div className="bg-[#0c356a] top-0 w-full h-[7rem] flex items-center text-[#ffffff]">
         <div className="p-8 justify-start">
           <h1 className="text-roboto text-2xl font-bold flex">
             Welcome {username}! Care to Book a Ride?
           </h1>
         </div>
         <div className="p-8 absolute right-0 items-center">
-          <IconButton onClick={toggleDrawer(true)}>
-            <MenuIcon className="text-customWhite" />
-          </IconButton>
+          <Sheet>
+            <SheetTrigger asChild>
+              <IconButton>
+                <MenuIcon className="text-[#ffffff]" />
+              </IconButton>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="p-4">
+                <List>
+                  <ListItem button onClick={() => navigate("/UpdateAccount")}>
+                    <ListItemText primary="Update Profile" />
+                  </ListItem>
+                  <ListItem
+                    button
+                    onClick={() => navigate("/OtherApplications")}
+                  >
+                    <ListItemText primary="Other Apps" />
+                  </ListItem>
+                  <ListItem button onClick={() => navigate("/")}>
+                    <ListItemIcon>
+                      <LogoutIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Logout" />
+                  </ListItem>
+                </List>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
 
@@ -440,7 +451,7 @@ const PasaheroDashboard = () => {
       // }}
       >
         <div className=" h-full w-full flex flex-row justify-center">
-          <div className="h-[50rem] flex items-center">
+          <div className="h-[40rem] flex items-center">
             <Box
               sx={{
                 height: "35rem",
@@ -526,13 +537,12 @@ const PasaheroDashboard = () => {
                   mt: "1.2rem",
                 }}
               >
-                <button
+                <Button
                   onClick={handleRequestRide}
-                  variant="contained"
-                  className="bg-customLightBlue text-customWhite h-[3rem] w-[8rem] text-2xl"
+                  className="h-[3rem] w-[8rem] text-2xl"
                 >
                   Request!
-                </button>
+                </Button>
               </Box>
             </Box>
 
@@ -577,27 +587,6 @@ const PasaheroDashboard = () => {
         </div>
       </div>
 
-      <div className="p-8">
-        <div className="mb-8">
-          <h3 className="text-xl font-bold mb-4 flex justify-center mb-[3rem]">Ride History</h3>
-          <div className="w-full flex align-center items-center justify-center">
-            <Paper elevation={3}>
-              <DataGrid
-                rows={rideHistory}
-                columns={rideHistoryColumns}
-                initialState={{
-                  pagination: {
-                    paginationModel: { page: 0, pageSize: 5 },
-                  },
-                }}
-                pageSizeOptions={[5, 10]}
-                getRowId={(row) => row.rideid}
-              />
-            </Paper>
-          </div>
-        </div>
-      </div>
-
       {/* Success Snackbar */}
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
@@ -631,11 +620,46 @@ const PasaheroDashboard = () => {
           {errorSnackbarMessage}
         </Alert>
       </Snackbar>
-
-      {/* Drawer */}
-      <Drawer anchor="right" open={openDrawer} onClose={toggleDrawer(false)}>
-        {drawerContent}
-      </Drawer>
+      <div className="flex align-center justify-center mt-[5rem]">
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button variant="ghost">
+              <h1 className="text-2xl font-bold">View Ride History</h1>
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <div className="mx-auto w-full w-[80rem]">
+              <DrawerHeader>
+                <DrawerTitle><p className="text-4xl font-bold">Ride History</p></DrawerTitle>
+                <DrawerDescription>
+                <p className="text-2xl">Your past rides are listed here.</p>
+                </DrawerDescription>
+              </DrawerHeader>
+              <div className="p-4">
+                <div style={{ height: 400, width: "100%" }}>
+                  <DataGrid
+                    rows={rideHistory}
+                    columns={rideHistoryColumns}
+                    initialState={{
+                      pagination: {
+                        paginationModel: { page: 0, pageSize: 5 },
+                      },
+                    }}
+                    pageSizeOptions={[5, 10]}
+                    getRowId={(row) => row.rideid}
+                    style={{ fontSize: "16px"}}
+                  />
+                </div>
+              </div>
+              <DrawerFooter>
+                <DrawerClose asChild>
+                  <Button variant="outline">Close</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </div>
     </div>
   );
 };

@@ -1,104 +1,103 @@
-import React, { useState } from 'react';
-import { Button, TextField, Box } from '@mui/material';
-import backgroundImage from '../rsc/finallandingpage.png';
-import { Link, Navigate } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState } from "react";
+import { TextField, Box } from "@mui/material";
+import backgroundImage from "../rsc/finallandingpage.png";
+import { Link, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import createAuditLog from "../utils/Auditlogger";
-import { SERVER_IP } from '../../config';
+import { SERVER_IP } from "../../config";
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+
 
 const Login = () => {
-  const [username, setusername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setusername] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(`http://${SERVER_IP}:3004/api/login`, {
         username,
-        password
+        password,
       });
 
       const { data } = response;
       const { userData } = data;
 
       // Store user data in local storage
-      Object.keys(userData).forEach(key => {
+      Object.keys(userData).forEach((key) => {
         localStorage.setItem(key, userData[key]);
       });
 
       // Extract usertype from userData
       const { usertype } = userData;
 
-
-
       // Navigate based on usertype
-      if (usertype === 'rider') {
+      if (usertype === "rider") {
         await createAuditLog({
           userid: null,
           username: username,
           userrole: usertype,
-          action: "Login"
-        })
+          action: "Login",
+        });
 
-        navigate('/rider');
-      } else if (usertype === 'pasahero') {
+        navigate("/rider");
+      } else if (usertype === "pasahero") {
         await createAuditLog({
           userid: null,
           username: username,
           userrole: usertype,
-          action: "Login"
-        })
+          action: "Login",
+        });
 
-        navigate('/pasahero');
-      } else if (usertype === 'admin') {
+        navigate("/pasahero");
+      } else if (usertype === "admin") {
         await createAuditLog({
           userid: null,
           username: username,
           userrole: usertype,
-          action: "Login"
-        })
+          action: "Login",
+        });
 
-        navigate('/admin');
-      } else if (usertype === 'accounting') {
+        navigate("/admin");
+      } else if (usertype === "accounting") {
         await createAuditLog({
           userid: null,
           username: username,
           userrole: usertype,
-          action: "Login"
-        })
+          action: "Login",
+        });
 
-        navigate('/accounting');
+        navigate("/accounting");
       } else {
         await createAuditLog({
           userid: null,
           username: username,
           userrole: usertype,
-          action: "Invalid Login Attempt"
-        })
-
-        alert('Invalid usertype returned from server.');
+          action: "Invalid Login Attempt",
+        });
+        alert("Error. Invalid Credentials");
       }
     } catch (error) {
-      console.error('Error logging in:', error.message);
-      alert('Invalid credentials. Please try again.');
+      console.error("Error logging in:", error.message);
+      toast("Invalid credentials. Please try again.");
     }
   };
 
   return (
-    <div className="flex items-center justify-start bg-[#FF0CE] w-screen font-roboto"
+    <div
+      className="flex items-center justify-start bg-[#FF0CE] w-screen font-roboto"
       style={{
         backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}>
-      <div className='flex bg-white h-screen items-center w-[30rem] justify-center'>
-        <Box
-          className="p-4 rounded"
-          sx={{ width: 300 }}
-        >
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="flex bg-white h-screen items-center w-[30rem] justify-center">
+        <Box className="p-4 rounded" sx={{ width: 300 }}>
           <h2 className="text-4xl font-bold mb-4 text-center">Login</h2>
           <form onSubmit={handleLogin}>
             <div className="mb-4">
@@ -120,17 +119,16 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <button
+            <Button
               fullWidth
-              variant="contained"
               color="primary"
-              className={`w-full h-[2.5rem] p-[.5rem] rounded-md flex items-center gap-[.5rem] duration-300 ease hover:bg-customBlue hover:text-customWhite mt-4 bg-customLightBlue text-customWhite hover:border-customBlue justify-center`}
+              className={`w-full h-[2.5rem] p-[.5rem] rounded-md flex items-center gap-[.5rem] duration-300 ease mt-4 justify-center bg-[#0c356a]`}
               type="submit"
             >
               Login
-            </button>
+            </Button>
             <p className="mt-2 text-start">
-              New user? <Link to="/signup">Create an account</Link>
+              New user? <Link to="/signup" className="hover:text-[#0174be]">Create an account</Link>
             </p>
             <p className="mt-10 text-start w-[30rem]">
               <u>Pasahero</u> Username: <b>jericho</b>| Password: <b>jericho</b>
@@ -147,6 +145,7 @@ const Login = () => {
           </form>
         </Box>
       </div>
+      <Toaster />
     </div>
   );
 };
