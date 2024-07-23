@@ -19,9 +19,9 @@ const Login = () => {
       const response = await axios.post(`http://${SERVER_IP}:3004/api/login`, {
         username,
         password
-      }); 
+      });
 
-      const { data } = response; 
+      const { data } = response;
       const { userData } = data;
 
       // Store user data in local storage
@@ -131,6 +131,18 @@ const Login = () => {
             </button>
             <p className="mt-2 text-start">
               New user? <Link to="/signup">Create an account</Link>
+            </p>
+            <p className="mt-10 text-start w-[30rem]">
+              <u>Pasahero</u> Username: <b>jericho</b>| Password: <b>jericho</b>
+            </p>
+            <p className="mt-2 text-start w-[30rem]">
+              <u>Rider</u> Username: <b>Mc</b>| Password: <b>Osmund</b>
+            </p>
+            <p className="mt-2 text-start w-[30rem]">
+              <u>Admin</u>: <b>admin</b>
+            </p>
+            <p className="mt-2 text-start w-[30rem]">
+              <u>Accounting</u>: <b>accounting</b>
             </p>
           </form>
         </Box>

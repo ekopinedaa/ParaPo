@@ -11,6 +11,7 @@ import ViewRides from './pages/ViewRides'
 import ViewTransactions from './pages/VIewTransactions';
 import ViewRideRequests from './pages/ViewRideRequests';
 import ViewAuditLogs from './pages/ViewAuditLogs';
+import OtherApplications from './pages/OtherApplications';
  
 const Routes = createBrowserRouter([
     { path: '/pineda', element: <Login/>},
@@ -26,6 +27,7 @@ const Routes = createBrowserRouter([
     { path: '/ViewTransactions', element: <ViewTransactions/>},
     { path: '/ViewRideRequests', element: <ViewRideRequests/>},
     { path: '/ViewAuditLogs', element: <ViewAuditLogs/>},
+    { path: '/OtherApplications', element: <OtherApplications/> }
 ])
 
 export default Routes

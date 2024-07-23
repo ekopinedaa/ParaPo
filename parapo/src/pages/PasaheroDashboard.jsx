@@ -237,6 +237,9 @@ const PasaheroDashboard = () => {
         <ListItem button onClick={() => navigate("/UpdateAccount")}>
           <ListItemText primary="Update Profile" />
         </ListItem>
+        <ListItem button onClick={() => navigate("/OtherApplications")}>
+          <ListItemText primary="Other Apps" />
+        </ListItem>
       </List>
       <Divider />
       <List>
@@ -367,7 +370,7 @@ const PasaheroDashboard = () => {
 
       const PayTransP = await axios.post(`http://${SERVER_IP}:3004/api/createTransaction`,{
         fromid: userid,
-        toid: 900000000,
+        toid: 1,
         fromaccno: accountno,
         toaccno:"000000035",
         amount: PayingToParaPo
